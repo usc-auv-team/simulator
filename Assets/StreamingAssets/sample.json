@@ -1,0 +1,74 @@
+{
+	"timestamp": "5000",
+	"objects": [
+		{
+			"id": 0,
+			"type": 0,
+			"position": {
+				"x": 0,
+				"y": 0,
+				"z": 0
+			},
+			"orientation": {
+				"x": 0,
+				"y": 0,
+				"z": 0
+			},
+			"linear_velocity": {
+				"x": 0,
+				"y": 0,
+				"z": 0
+			},
+			"angular_velocity": {
+				"x": 0,
+				"y": 0,
+				"z": 0
+			},
+			"linear_acceleration": {
+				"x": 0,
+				"y": 0,
+				"z": 0
+			},
+			"angular_acceleration": {
+				"x": 0,
+				"y": 0,
+				"z": 0
+			}
+		},
+		{
+			"id": 1,
+			"type": 1,
+			"position": {
+				"x": 3,
+				"y": 3,
+				"z": 0
+			},
+			"orientation": {
+				"x": 45,
+				"y": 0,
+				"z": 0
+			},
+			"linear_velocity": {
+				"x": 0,
+				"y": 0,
+				"z": 0
+			},
+			"angular_velocity": {
+				"x": 0,
+				"y": 0,
+				"z": 0
+			},
+			"linear_acceleration": {
+				"x": 0,
+				"y": 0,
+				"z": 0
+			},
+			"angular_acceleration": {
+				"x": 0,
+				"y": 0,
+				"z": 0
+			}
+		}
+	]
+
+}
