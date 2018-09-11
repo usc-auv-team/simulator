@@ -23,12 +23,34 @@ public class AUVController : MonoBehaviour {
 	}
 
 	void FixedUpdate () {
-		// dummy AUV control script, only contains 2-D control
-		// by default arrow keys and "WASD" should both work
-		float moveHorizontal = Input.GetAxis ("Horizontal");
-		float moveVertical = Input.GetAxis ("Vertical");
+		// 3D controll implementation
+		float moveX=0,moveY=0,moveZ=0;
+		if (Input.GetKey(KeyCode.W)){
+			//move  up
+			moveZ=1;
+		}
+		if (Input.GetKey(KeyCode.A)){
+			//move  left
+			moveX=-1;
+		}
+		if (Input.GetKey(KeyCode.S)){
+			//move  down
+			moveZ=-1;
+		}
+		if (Input.GetKey(KeyCode.D)){
+			//move  right
+			moveX=1;
+		}
+		if (Input.GetKey(KeyCode.LeftShift)){
+			//move  down
+			moveY=-1;
+		}
+		if (Input.GetKey(KeyCode.Space)){
+			//move  up
+			moveY=1;
+		}
 
-		Vector3 movement = new Vector3 (moveHorizontal, 0, moveVertical);
+		Vector3 movement = new Vector3 (moveX, moveY, moveZ);
 
 		// I choosed force control instead of direct transform control for the AUV because
 		// it seems more realistic to apply force to the sub.
