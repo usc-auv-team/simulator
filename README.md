@@ -22,7 +22,7 @@ Usage:
 
 
 Log File and Stream Format:
-'''
+`
 [
 	{
 		"ts":12345,  \\ Unix Timestamp
@@ -48,4 +48,4 @@ Log File and Stream Format:
 		"th":0  \\ rotation 
 	}
 ]
-'''
+`
