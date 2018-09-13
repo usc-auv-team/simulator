@@ -19,3 +19,33 @@ Usage:
 - Use the mouse scroll to move the camera near and far. (won't affect Follow View).
 - Right click and drag to translate the camera (won't affect Follow View) and left click to rotate (only for Main View).
 - Either right click or left click on a specific view will set it as the current view.
+
+
+Log File and Stream Format:
+'''
+[
+	{
+		"ts":12345,  \\ Unix Timestamp
+		"objects":[ \\ array of objects detected by CV
+			{"id":0, \\ ID of Object
+			"x":0,   \\ Position
+			"y":0,		
+			"z":0,
+			"th":0,   \\ theta angle of rotation
+			"p":0	\\ probability
+			}
+		],
+		"x":0,   \\ AUV position
+		"y":0,
+		"z":0,
+		"ax":0, \\ AUV acceleration
+		"ay":0,
+		"az":0,
+		"ux":0,  \\ Speed
+		"uy":0,
+		"uz":0,
+		"d":0   \\ depth
+		"th":0  \\ rotation 
+	}
+]
+'''
