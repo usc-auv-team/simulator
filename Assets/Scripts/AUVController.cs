@@ -4,68 +4,100 @@ using RosSharp.RosBridgeClient;
 
 public class AUVController : MonoBehaviour {
 
-    public Text position;
+    //uri should be ROS server IP
+    static readonly string uri = "ws://192.168.56.102:9090";
 
+    //RosSocket and publicationId connect unity to ROS
+    private RosSocket rosSocket;
+    private string publicationId;
+    private StandardString Message;
+    private bool manual= false;
+
+    //Unity specific vars
+    public Text position;
     Rigidbody rb;
     float speed;
-    static readonly string uri = "ws://192.168.56.101:9090";
-    private RosSocket rosSocket;
-    private StandardString Message;
-    private string publicationId;
-    
-    // Use this for initialization
+
+    //Use this for initialization
     void Start() {
         speed = 5.0f;
         rb = GetComponent<Rigidbody>();
         Debug.Log(GetComponent<MeshFilter>().mesh.bounds);
+
+        //Connect to ROS
         rosSocket = new RosSocket(uri);
-        publicationId = rosSocket.Advertise("/message", "std_msgs/String")
+        publicationId = rosSocket.Advertise("/message", "std_msgs/String"); // topic, type
         Message = new StandardString();
     }
 
-    // Update is called once per frame
+    //Update is called once per frame
     void Update() {
         updatePositionText();
     }
 
     void FixedUpdate() {
+        //Boolean so rosSocket doesn't keep sending messages on idle
+        bool keyPress = false;
         
-        //Basic Movement
-        if (Input.GetKey(KeyCode.W))
-        {
+        //3D Movement
+        if (Input.GetKey(KeyCode.W)) {
             //move  forward
             Message.data = "FORWARD";
-        }
-        if (Input.GetKey(KeyCode.A))
-        {
-            //move  left
-            Message.data = "LEFT";
+            keyPress = true;
         }
         if (Input.GetKey(KeyCode.S))
         {
             //move  back
             Message.data = "BACKWARD";
+            keyPress = true;
         }
-        if (Input.GetKey(KeyCode.D))
-        {
+        if (Input.GetKey(KeyCode.A)) {
+            //move  left
+            Message.data = "LEFT";
+            keyPress = true;
+        }
+        if (Input.GetKey(KeyCode.D)) {
             //move  right
             Message.data = "RIGHT";
+            keyPress = true;
         }
-        if (Input.GetKey(KeyCode.LeftShift))
-        {
+        if (Input.GetKey(KeyCode.LeftShift)) {
             //move  down
             Message.data = "DOWN";
+            keyPress = true;
         }
-        if (Input.GetKey(KeyCode.Space))
-        {
+        if (Input.GetKey(KeyCode.Space)) {
             //move  up
             Message.data = "UP";
+            keyPress = true;
         }
 
-        rosSocket.Publish(publicationId, Message);
+        //Publish [Message] to publicationId
+        if (keyPress) rosSocket.Publish(publicationId, Message);
     }
 
-    // Updates the position and velocity information of our AUV
+    void toggleMode() {
+        //string Mode;
+        StandardString Mode = new StandardString();
+        //Toggle between manual and auto modes
+        if (manual){
+            //Update button text
+            GameObject.Find("ModeSwitch").GetComponentInChildren<Text>().text = "Auto";
+            Mode.data = "AUTO";
+            //send data to ROS
+            rosSocket.Publish(publicationId, Mode);
+            manual = !manual;
+        }
+        else {
+            GameObject.Find("ModeSwitch").GetComponentInChildren<Text>().text = "Manual";
+            Mode.data = "MANUAL";
+            rosSocket.Publish(publicationId, Mode);
+            manual = !manual;
+        }
+        Debug.Log("Mode Toggled");
+    }
+
+    //Updates the position and velocity information of our AUV
     void updatePositionText() {
         position.text = "AUV position:" +
         "\nx: " + gameObject.transform.position.x.ToString() +
