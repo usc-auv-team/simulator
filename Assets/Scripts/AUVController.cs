@@ -8,9 +8,10 @@ public class AUVController : MonoBehaviour {
     static readonly string uri = "ws://192.168.56.102:9090";
 
     //RosSocket and publicationId connect unity to ROS
-    private RosSocket rosSocket;
+    private RosSocket rosSocket = new RosSocket(uri);
     private string publicationId;
     private StandardString Message;
+    //private StandardString Mode;
     private bool manual= false;
 
     //Unity specific vars
@@ -20,12 +21,10 @@ public class AUVController : MonoBehaviour {
 
     //Use this for initialization
     void Start() {
-        speed = 5.0f;
         rb = GetComponent<Rigidbody>();
         Debug.Log(GetComponent<MeshFilter>().mesh.bounds);
 
         //Connect to ROS
-        rosSocket = new RosSocket(uri);
         publicationId = rosSocket.Advertise("/message", "std_msgs/String"); // topic, type
         Message = new StandardString();
     }
@@ -77,8 +76,11 @@ public class AUVController : MonoBehaviour {
     }
 
     void toggleMode() {
-        //string Mode;
         StandardString Mode = new StandardString();
+
+        //Connect to ROS
+        publicationId = rosSocket.Advertise("/message", "std_msgs/String"); // topic, type
+
         //Toggle between manual and auto modes
         if (manual){
             //Update button text
@@ -95,6 +97,7 @@ public class AUVController : MonoBehaviour {
             manual = !manual;
         }
         Debug.Log("Mode Toggled");
+        Debug.Log(publicationId);
     }
 
     //Updates the position and velocity information of our AUV
