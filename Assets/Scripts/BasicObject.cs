@@ -13,5 +13,4 @@ public class BasicObject {
 	public Vector3 angular_velocity;
 	public Vector3 linear_acceleration;
 	public Vector3 angular_acceleration;
-
 }
