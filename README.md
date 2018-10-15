@@ -13,8 +13,9 @@ Important files:
 Usage:
 
 - By default when you open the project it might give you an empty screen, don't worry, open Main.unity (under Assets/Scenes/ and you should be all good.
-- First you have to run the game either in unity or build it as a stand alone application.
-- Use WASD or arrow keys to control the sub, moving up and down is not supported yet.
+- Install ROS-Sharp version 1.2C from [here](https://github.com/siemens/ros-sharp/releases).
+- You have to run the game either in unity or build it as a stand alone application.
+- Use WASD and LSHIFT/SPACE(down and up respectively) to move the sub.
 - Use mouse to select the view mode and which camera is used to render the current view from the top menue.
 - Use the mouse scroll to move the camera near and far. (won't affect Follow View).
 - Right click and drag to translate the camera (won't affect Follow View) and left click to rotate (only for Main View).
