@@ -49,25 +49,6 @@ public class ObjectCreator : MonoBehaviour {
 			gameDatas [i] = JsonUtility.FromJson<GameData> (dataAsJson);
 		}
 
-		foreach (BasicObject obj in gameDatas[currentFrameNum].objects) {
-			PrimitiveType type = PrimitiveType.Cube;
-			switch (obj.type) {
-			case 0:
-				type = PrimitiveType.Cube;
-				break;
-			case 1:
-				type = PrimitiveType.Sphere;
-				break;
-			case 2:
-				type = PrimitiveType.Cylinder;
-				break;
-			}
-			gameObjects[obj.id] = GameObject.CreatePrimitive (type);
-			gameObjects[obj.id].transform.position = obj.position;
-			gameObjects[obj.id].transform.eulerAngles = obj.orientation;
-		}
-
-
 		isPlaying = false;
 		Progress.maxValue = frameCount - 1;
 
@@ -111,10 +92,15 @@ public class ObjectCreator : MonoBehaviour {
 
 		foreach (BasicObject obj in gameDatas[currentFrameNum].objects) {
 			gameObjects[obj.id].transform.position = obj.position;
-			gameObjects[obj.id].transform.eulerAngles = obj.orientation;
 		}
 
-	}
+        DirectoryInfo directory = new DirectoryInfo("C:/Users/Public/Json");
+        FileInfo myFile = (from f in directory.GetFiles() orderby f.LastWriteTime descending select f).First();
+
+        string objectJSON = File.ReadAllText(myFile.FullName);
+
+
+    }
 
 	public void togglePlay () {
 		isPlaying = !isPlaying;
