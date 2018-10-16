@@ -5,8 +5,7 @@ using UnityEngine.UI;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Linq;
-using DataParser;
-using DataFrame;
+using SimpleJSON;
 
 public class ObjectCreator : MonoBehaviour {
 
@@ -113,4 +112,12 @@ public class ObjectCreator : MonoBehaviour {
 		}
 	}
 
+}
+
+DataFrame parse(string filePath) {
+    DataFrame dFrame = new DataFrame();
+    string dataAsJson = File.ReadAllText(filePath);
+    JSONNode jsonData = JSON.Parse(dataAsJson);
+    dFrame.acceleration =<>;
+    return dFrame;
 }
