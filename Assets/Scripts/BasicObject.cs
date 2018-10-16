@@ -10,4 +10,5 @@ public class BasicObject {
     public double probability;
 	public double angle;
 	public Vector3 position;
+
 }
