@@ -25,8 +25,9 @@ public class ObjectCreator : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 
+        Parse("Assets/Data/sample.json");
 
-		objectCount = 10; // should read from configuration file later on
+        objectCount = 10; // should read from configuration file later on
 
 		Regex reg = new Regex (@"^[0-9]+\.json$");
 
@@ -52,55 +53,26 @@ public class ObjectCreator : MonoBehaviour {
 
 		isPlaying = false;
 		Progress.maxValue = frameCount - 1;
-
-
-//			objs = loadedData.objects;
-//			for (int i = 0; i < objs.Length; i++) {
-//				Debug.Log ("object N.O.: " + i);
-//				Debug.Log ("id: " + objs [i].id);
-//				Debug.Log ("type: " + objs [i].type);
-//				Debug.Log ("position: " + objs [i].position);
-//				Debug.Log ("orientation: " + objs [i].orientation);
-//				Debug.Log ("linear_velocity: " + objs [i].linear_velocity);
-//				Debug.Log ("angular_velocity: " + objs [i].angular_velocity);
-//				Debug.Log ("linear_acceleration: " + objs [i].linear_acceleration);
-//				Debug.Log ("angular_acceleration: " + objs [i].angular_acceleration);
-//
-//				PrimitiveType type = PrimitiveType.Cube;
-//				switch (objs [i].type) {
-//				case 0:
-//					type = PrimitiveType.Cube;
-//					break;
-//				case 1:
-//					type = PrimitiveType.Sphere;
-//					break;
-//				}
-//
-//				GameObject instance = GameObject.CreatePrimitive (type);
-//				instance.transform.position = objs [i].position;
-//				instance.transform.eulerAngles = objs [i].orientation;
-//
-//			}
 	}
 
 	void Update () {
 
-		if (isPlaying) {
-			Progress.value = (Progress.value + 1) % frameCount;
-		}
+		//if (isPlaying) {
+		//	Progress.value = (Progress.value + 1) % frameCount;
+		//}
 
-		currentFrameNum = (int)Progress.value;
+		//currentFrameNum = (int)Progress.value;
 
-		foreach (BasicObject obj in gameDatas[currentFrameNum].objects) {
-			gameObjects[obj.id].transform.position = obj.position;
-		}
+		//foreach (BasicObject obj in gameDatas[currentFrameNum].objects) {
+		//	gameObjects[obj.id].transform.position = obj.position;
+		//}
 
-        DirectoryInfo directory = new DirectoryInfo("C:/Users/Public/Json");
-        FileInfo myFile = (from f in directory.GetFiles() orderby f.LastWriteTime descending select f).First();
+  //      DirectoryInfo directory = new DirectoryInfo("C:/Users/Public/Json");
+  //      FileInfo myFile = (from f in directory.GetFiles() orderby f.LastWriteTime descending select f).First();
 
         //string jsonData = File.ReadAllText(myFile.FullName);
 
-        parser(myFile.FullName);
+        //Parse(myFile.FullName);
     }
 
 	public void togglePlay () {
@@ -112,12 +84,32 @@ public class ObjectCreator : MonoBehaviour {
 		}
 	}
 
-}
+    DataFrame Parse(string filePath) {
+        DataFrame dFrame = new DataFrame();
+        List<BasicObject> objects = new List<BasicObject>();
+        JSONNode jsonData = JSON.Parse(File.ReadAllText(filePath));
 
-DataFrame parse(string filePath) {
-    DataFrame dFrame = new DataFrame();
-    string dataAsJson = File.ReadAllText(filePath);
-    JSONNode jsonData = JSON.Parse(dataAsJson);
-    dFrame.acceleration =<>;
-    return dFrame;
+        //Main DataFrame components
+        dFrame.timeStamp = jsonData["ts"];
+        dFrame.position.Set(jsonData["x"], jsonData["y"], jsonData["z"]);
+        dFrame.acceleration.Set(jsonData["ax"], jsonData["ay"], jsonData["az"]);
+        dFrame.speed.Set(jsonData["ux"], jsonData["uy"], jsonData["uz"]);
+        dFrame.depth = jsonData["d"];
+        dFrame.rotation = jsonData["th"];
+
+        //Objects
+        for(int i = 0; i < jsonData["objects"].Count; i++) {
+            JSONNode currObj = jsonData["objects"][i];
+            BasicObject basicObj = new BasicObject();
+            basicObj.id = currObj["id"];
+            basicObj.angle = currObj["th"];
+            basicObj.probability = currObj["p"];
+            basicObj.position.Set(currObj["x"], currObj["y"], currObj["z"]);
+
+            objects.Add(basicObj);
+            Debug.Log(basicObj.ToString());
+        }
+        Debug.Log(dFrame.ToString());
+        return dFrame;
+    }
 }
