@@ -2,87 +2,113 @@ using UnityEngine;
 using UnityEngine.UI;
 using RosSharp.RosBridgeClient;
 
-[RequireComponent(typeof(RosConnector))]
 public class AUVController : MonoBehaviour {
 
-	public Text position;
+    //uri should be ROS server IP
+    static readonly string uri = "ws://192.168.56.102:9090";
 
-	Rigidbody rb;
-	float speed;
-    //static readonly string uri = "ws://192.168.70.129:9090";
-    private RosSocket rosSocket;
-    public string topic = "/message";
-    private StandardString Message;
+    //RosSocket and publicationId connect unity to ROS
+    private RosSocket rosSocket = new RosSocket(uri);
     private string publicationId;
+    private StandardString Message;
+    //private StandardString Mode;
+    private bool manual= false;
 
+    //Unity specific vars
+    public Text position;
+    Rigidbody rb;
+    float speed;
 
-    // Use this for initialization
-    void Start () {
-		speed = 5.0f;
-		rb = GetComponent<Rigidbody> ();
-		Debug.Log (GetComponent<MeshFilter>().mesh.bounds);
-        rosSocket = GetComponent<RosConnector>().RosSocket;
-        publicationId = rosSocket.Advertise(topic, "std_msgs/String");
+    //Use this for initialization
+    void Start() {
+        rb = GetComponent<Rigidbody>();
+        Debug.Log(GetComponent<MeshFilter>().mesh.bounds);
+
+        //Connect to ROS
+        publicationId = rosSocket.Advertise("/message", "std_msgs/String"); // topic, type
         Message = new StandardString();
     }
-	
-	// Update is called once per frame
-	void Update () {
-		updatePositionText ();
-        Vector3 values = new Vector3(Random.Range(0, 1000.0f), Random.Range(0, 1000.0f), Random.Range(0, 1000.0f));
-        Message.data = values.ToString();
-        rosSocket.Publish(publicationId, Message);
+
+    //Update is called once per frame
+    void Update() {
+        updatePositionText();
     }
 
-	void FixedUpdate () {
-		// 3D controll implementation
-		float moveX=0,moveY=0,moveZ=0;
+    void FixedUpdate() {
+        //Boolean so rosSocket doesn't keep sending messages on idle
+        bool keyPress = false;
+        
+        //3D Movement
+        if (Input.GetKey(KeyCode.W)) {
+            //move  forward
+            Message.data = "FORWARD";
+            keyPress = true;
+        }
+        if (Input.GetKey(KeyCode.S))
+        {
+            //move  back
+            Message.data = "BACKWARD";
+            keyPress = true;
+        }
+        if (Input.GetKey(KeyCode.A)) {
+            //move  left
+            Message.data = "LEFT";
+            keyPress = true;
+        }
+        if (Input.GetKey(KeyCode.D)) {
+            //move  right
+            Message.data = "RIGHT";
+            keyPress = true;
+        }
+        if (Input.GetKey(KeyCode.LeftShift)) {
+            //move  down
+            Message.data = "DOWN";
+            keyPress = true;
+        }
+        if (Input.GetKey(KeyCode.Space)) {
+            //move  up
+            Message.data = "UP";
+            keyPress = true;
+        }
 
-		//Basic Movement
-		if (Input.GetKey(KeyCode.W)){
-			//move  up
-			moveZ=1;
-		}
-		if (Input.GetKey(KeyCode.A)){
-			//move  left
-			moveX=-1;
-		}
-		if (Input.GetKey(KeyCode.S)){
-			//move  down
-			moveZ=-1;
-		}
-		if (Input.GetKey(KeyCode.D)){
-			//move  right
-			moveX=1;
-		}
-		if (Input.GetKey(KeyCode.LeftShift)){
-			//move  down
-			moveY=-1;
-		}
-		if (Input.GetKey(KeyCode.Space)){
-			//move  up
-			moveY=1;
-		}
+        //Publish [Message] to publicationId
+        if (keyPress) rosSocket.Publish(publicationId, Message);
+    }
 
-		Vector3 movement = new Vector3 (moveX, moveY, moveZ);
+    void toggleMode() {
+        StandardString Mode = new StandardString();
 
-		// I choosed force control instead of direct transform control for the AUV because
-		// it seems more realistic to apply force to the sub.
-		rb.AddForce (movement * speed);
+        //Connect to ROS
+        publicationId = rosSocket.Advertise("/message", "std_msgs/String"); // topic, type
 
-		// TODO: set differnt mode of controlling the sub including the at least one for 
-		// convenience and one for more realistic test 
-	}
+        //Toggle between manual and auto modes
+        if (manual){
+            //Update button text
+            GameObject.Find("ModeSwitch").GetComponentInChildren<Text>().text = "Auto";
+            Mode.data = "AUTO";
+            //send data to ROS
+            rosSocket.Publish(publicationId, Mode);
+            manual = !manual;
+        }
+        else {
+            GameObject.Find("ModeSwitch").GetComponentInChildren<Text>().text = "Manual";
+            Mode.data = "MANUAL";
+            rosSocket.Publish(publicationId, Mode);
+            manual = !manual;
+        }
+        Debug.Log("Mode Toggled");
+        Debug.Log(publicationId);
+    }
 
-	// Updates the position and velocity information of our AUV
-	void updatePositionText() {
-		position.text = "AUV position:" +
-		"\nx: " + gameObject.transform.position.x.ToString () +
-		"\ny: " + gameObject.transform.position.y.ToString () +
-		"\nz: " + gameObject.transform.position.z.ToString () +
-		"\nAUV velocity:" +
-		"\nx: " + rb.velocity.x.ToString () +
-		"\ny: " + rb.velocity.y.ToString () +
-		"\nz: " + rb.velocity.z.ToString ();
-	}
+    //Updates the position and velocity information of our AUV
+    void updatePositionText() {
+        position.text = "AUV position:" +
+        "\nx: " + gameObject.transform.position.x.ToString() +
+        "\ny: " + gameObject.transform.position.y.ToString() +
+        "\nz: " + gameObject.transform.position.z.ToString() +
+        "\nAUV velocity:" +
+        "\nx: " + rb.velocity.x.ToString() +
+        "\ny: " + rb.velocity.y.ToString() +
+        "\nz: " + rb.velocity.z.ToString();
+    }
 }
