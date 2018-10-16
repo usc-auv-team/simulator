@@ -5,6 +5,8 @@ using UnityEngine.UI;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Linq;
+using DataParser;
+using DataFrame;
 
 public class ObjectCreator : MonoBehaviour {
 
@@ -97,9 +99,9 @@ public class ObjectCreator : MonoBehaviour {
         DirectoryInfo directory = new DirectoryInfo("C:/Users/Public/Json");
         FileInfo myFile = (from f in directory.GetFiles() orderby f.LastWriteTime descending select f).First();
 
-        string objectJSON = File.ReadAllText(myFile.FullName);
+        //string jsonData = File.ReadAllText(myFile.FullName);
 
-
+        parser(myFile.FullName);
     }
 
 	public void togglePlay () {
