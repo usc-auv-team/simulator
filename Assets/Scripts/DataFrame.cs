@@ -19,4 +19,16 @@ public class DataFrame
     public double depth;
     //rotation
     public double rotation;
+
+    public override string ToString()
+    {
+        string temp =
+            "Timestamp:" + timeStamp + "\n" +
+            "Position:(" + position.x + "," + position.y + "," + position.z + ")" + "\n" +
+            "Accelaration:(" + acceleration.x + "," + acceleration.y + "," + acceleration.z + ")" + "\n" +
+            "Speed:(" + speed.x + "," + speed.y + "," + speed.z + ")" + "\n" +
+            "Depth:" + depth + "\n" +
+            "Rotation" + rotation;
+        return temp;
+    }
 }
