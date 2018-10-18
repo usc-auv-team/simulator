@@ -6,13 +6,17 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Linq;
 using SimpleJSON;
+using RosSharp.RosBridgeClient;
 
 public class ObjectCreator : MonoBehaviour {
 
-	public Button PlayPause;
+    private RosSocket rosSocket = new RosSocket("ws://192.168.56.102:9090");
+
+    public Button PlayPause;
 	public Slider Progress;
 
 	bool isPlaying;
+    bool isLive;
 
 	int frameCount;
 	int objectCount;
@@ -22,8 +26,10 @@ public class ObjectCreator : MonoBehaviour {
 	GameData[] gameDatas;
 	GameObject[] gameObjects;
 
-	// Use this for initialization
-	void Start () {
+
+    // Use this for initialization
+    void Start () {
+        string subscription_id = rosSocket.Subscribe("/listener", "std_msgs/String", subscriptionHandler);
 
         Parse("Assets/Data/sample.json");
 
@@ -57,22 +63,25 @@ public class ObjectCreator : MonoBehaviour {
 
 	void Update () {
 
-		//if (isPlaying) {
-		//	Progress.value = (Progress.value + 1) % frameCount;
-		//}
+        if (isPlaying) {
+            Progress.value = (Progress.value + 1) % frameCount;
+        }
 
-		//currentFrameNum = (int)Progress.value;
+        currentFrameNum = (int)Progress.value;
 
-		//foreach (BasicObject obj in gameDatas[currentFrameNum].objects) {
-		//	gameObjects[obj.id].transform.position = obj.position;
-		//}
+        foreach (BasicObject obj in gameDatas[currentFrameNum].objects) {
+            gameObjects[obj.id].transform.position = obj.position;
+        }
+        if (!isLive) {
+            DirectoryInfo directory = new DirectoryInfo("C:/Users/Public/Json");
+            FileInfo myFile = (from f in directory.GetFiles() orderby f.LastWriteTime descending select f).First();
 
-  //      DirectoryInfo directory = new DirectoryInfo("C:/Users/Public/Json");
-  //      FileInfo myFile = (from f in directory.GetFiles() orderby f.LastWriteTime descending select f).First();
+            string jsonData = File.ReadAllText(myFile.FullName);
 
-        //string jsonData = File.ReadAllText(myFile.FullName);
+            Parse(myFile.FullName);
+        } else if (isLive) {
 
-        //Parse(myFile.FullName);
+        }
     }
 
 	public void togglePlay () {
@@ -111,5 +120,22 @@ public class ObjectCreator : MonoBehaviour {
         }
         Debug.Log(dFrame.ToString());
         return dFrame;
+    }
+
+    void toggleLive() {
+        if (isLive) {
+            isLive = false;
+            GameObject.Find("ModeSwitch").GetComponentInChildren<Text>().text = "Logged";
+        } else if (!isLive) {
+            isLive = true;
+            GameObject.Find("ModeSwitch").GetComponentInChildren<Text>().text = "Live";
+        }
+    }
+    // At some point we'll make the code perty
+
+    void subscriptionHandler(Message message)
+    {
+        StandardString standardString = (StandardString)message;
+        Debug.Log(standardString.data);
     }
 }
