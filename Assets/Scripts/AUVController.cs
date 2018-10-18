@@ -84,14 +84,14 @@ public class AUVController : MonoBehaviour {
         //Toggle between manual and auto modes
         if (manual){
             //Update button text
-            GameObject.Find("ModeSwitch").GetComponentInChildren<Text>().text = "Auto";
+            GameObject.Find("RemoteSwitch").GetComponentInChildren<Text>().text = "Auto";
             Mode.data = "AUTO";
             //send data to ROS
             rosSocket.Publish(publicationId, Mode);
             manual = !manual;
         }
         else {
-            GameObject.Find("ModeSwitch").GetComponentInChildren<Text>().text = "Manual";
+            GameObject.Find("RemoteSwitch").GetComponentInChildren<Text>().text = "Manual";
             Mode.data = "MANUAL";
             rosSocket.Publish(publicationId, Mode);
             manual = !manual;
