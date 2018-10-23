@@ -26,10 +26,11 @@ public class ObjectCreator : MonoBehaviour {
 	GameData[] gameDatas;
 	GameObject[] gameObjects;
 
+    DataFrame BigFrame
 
     // Use this for initialization
     void Start () {
-        string subscription_id = rosSocket.Subscribe("/listener", "std_msgs/String", subscriptionHandler);
+        //string subscription_id = rosSocket.Subscribe("/listener", "std_msgs/String", subscriptionHandler);
 
         Parse("Assets/Data/sample.json");
 
@@ -62,25 +63,25 @@ public class ObjectCreator : MonoBehaviour {
 	}
 
 	void Update () {
-
         if (isPlaying) {
-            Progress.value = (Progress.value + 1) % frameCount;
+           Progress.value = (Progress.value + 1) % frameCount;
         }
 
         currentFrameNum = (int)Progress.value;
 
         foreach (BasicObject obj in gameDatas[currentFrameNum].objects) {
-            gameObjects[obj.id].transform.position = obj.position;
+           gameObjects[obj.id].transform.position = obj.position;
         }
+
         if (!isLive) {
             DirectoryInfo directory = new DirectoryInfo("C:/Users/Public/Json");
-            FileInfo myFile = (from f in directory.GetFiles() orderby f.LastWriteTime descending select f).First();
-
-            string jsonData = File.ReadAllText(myFile.FullName);
-
-            Parse(myFile.FullName);
+            int jsonNum = directory.GetFiles().Length;
+            FileInfo[] files = directory.GetFiles();
+            // FileInfo myFile = (from f in directory.GetFiles() orderby f.LastWriteTime descending select f).First();
+            Parse(JSON.Parse(File.ReadAllText(files[(int)(jsonNum * Progress.value)].FullName)));
         } else if (isLive) {
-
+            // Subscribe rosSocket
+            rosSocket.Subscribe("/listener", "std_msgs/String", subscriptionHandler);
         }
     }
 
@@ -93,10 +94,10 @@ public class ObjectCreator : MonoBehaviour {
 		}
 	}
 
-    DataFrame Parse(string filePath) {
+    DataFrame Parse(JSONNode jsonData) {
         DataFrame dFrame = new DataFrame();
         List<BasicObject> objects = new List<BasicObject>();
-        JSONNode jsonData = JSON.Parse(File.ReadAllText(filePath));
+        // JSONNode jsonData = JSON.Parse(File.ReadAllText(filePath));
 
         //Main DataFrame components
         dFrame.timeStamp = jsonData["ts"];
@@ -133,9 +134,9 @@ public class ObjectCreator : MonoBehaviour {
     }
     // At some point we'll make the code perty
 
-    void subscriptionHandler(Message message)
-    {
+    void subscriptionHandler(Message message) {
         StandardString standardString = (StandardString)message;
         Debug.Log(standardString.data);
+        Parse(JSON.Parse(standardString.data));
     }
 }
