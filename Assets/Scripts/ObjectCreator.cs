@@ -26,7 +26,7 @@ public class ObjectCreator : MonoBehaviour {
 	GameData[] gameDatas;
 	GameObject[] gameObjects;
 
-    DataFrame BigFrame
+    DataFrame BigFrame;
 
     // Use this for initialization
     void Start () {
@@ -69,16 +69,17 @@ public class ObjectCreator : MonoBehaviour {
 
         currentFrameNum = (int)Progress.value;
 
-        foreach (BasicObject obj in gameDatas[currentFrameNum].objects) {
-           gameObjects[obj.id].transform.position = obj.position;
-        }
+        //foreach (BasicObject obj in gameDatas[currentFrameNum].objects) {
+        //   gameObjects[obj.id].transform.position = obj.position;
+        //}
 
         if (!isLive) {
             DirectoryInfo directory = new DirectoryInfo("C:/Users/Public/Json");
             int jsonNum = directory.GetFiles().Length;
             FileInfo[] files = directory.GetFiles();
             // FileInfo myFile = (from f in directory.GetFiles() orderby f.LastWriteTime descending select f).First();
-            Parse(JSON.Parse(File.ReadAllText(files[(int)(jsonNum * Progress.value)].FullName)));
+            dframe = Parse(JSON.Parse(File.ReadAllText(files[(int)(jsonNum * Progress.value)].FullName)));
+            CreateObjects(drame.objects);
         } else if (isLive) {
             // Subscribe rosSocket
             rosSocket.Subscribe("/listener", "std_msgs/String", subscriptionHandler);
@@ -119,6 +120,7 @@ public class ObjectCreator : MonoBehaviour {
             objects.Add(basicObj);
             Debug.Log(basicObj.ToString());
         }
+        dFrame.objects = objects;
         Debug.Log(dFrame.ToString());
         return dFrame;
     }
@@ -138,5 +140,27 @@ public class ObjectCreator : MonoBehaviour {
         StandardString standardString = (StandardString)message;
         Debug.Log(standardString.data);
         Parse(JSON.Parse(standardString.data));
+    }
+
+    void CreateObjects(List<BasicObject> obj)
+    {
+        foreach(BasicObject objects in obj) {
+            if(obj.id == 0) {
+                GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                cube.transform.position = obj.position;
+                cube.transform.orientation = obj.angle;
+                Instantiate(cube);
+            } else if (obj.id == 1) {
+                GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                sphere.transform.position = obj.position;
+                sphere.transform.orientation = obj.angle;
+                Instantiate(sphere);
+            } else if (obj.id == 2) {
+                GameObject cylinder = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+                cylinder.transform.position = obj.psoition;
+                cylinder.transform.orientation = obj.angle;
+                Instatiate(cylinder);
+            }
+        }
     }
 }
