@@ -142,25 +142,34 @@ public class ObjectCreator : MonoBehaviour {
         Parse(JSON.Parse(standardString.data));
     }
 
-    void CreateObjects(List<BasicObject> objects)
-    {
+    void CreateObjects(List<BasicObject> objects) {
+        DeleteAll();
         foreach(BasicObject obj in objects) {
             if(obj.id == 0) {
                 GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                cube.tag = "obstacle";
                 cube.transform.position = obj.position;
                 cube.transform.rotation = Quaternion.Euler(0, 0, obj.angle); // Will change will angle is better defined
                 Instantiate(cube);
             } else if (obj.id == 1) {
                 GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                sphere.tag = "obstacle";
                 sphere.transform.position = obj.position;
                 sphere.transform.rotation = Quaternion.Euler(0, 0, obj.angle); // Will change will angle is better defined
                 Instantiate(sphere);
             } else if (obj.id == 2) {
                 GameObject cylinder = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+                cylinder.tag = "obstacle";
                 cylinder.transform.position = obj.position;
                 cylinder.transform.rotation = Quaternion.Euler(0, 0, obj.angle); // Will change will angle is better defined
                 Instantiate(cylinder);
             }
+        }
+    }
+
+    void DeleteAll() {
+        foreach (GameObject obj in GameObject.FindGameObjectsWithTag("obstacle")) {
+            Destroy(obj);
         }
     }
 }
