@@ -7,7 +7,7 @@ public class BasicObject {
 	public int id;
 	public int type;
     public double probability;
-	public double angle;
+	public float angle;
 	public Vector3 position;
 
     public override string ToString() {

@@ -78,8 +78,8 @@ public class ObjectCreator : MonoBehaviour {
             int jsonNum = directory.GetFiles().Length;
             FileInfo[] files = directory.GetFiles();
             // FileInfo myFile = (from f in directory.GetFiles() orderby f.LastWriteTime descending select f).First();
-            dframe = Parse(JSON.Parse(File.ReadAllText(files[(int)(jsonNum * Progress.value)].FullName)));
-            CreateObjects(drame.objects);
+            DataFrame dframe = Parse(JSON.Parse(File.ReadAllText(files[(int)(jsonNum * Progress.value)].FullName)));
+            CreateObjects(dframe.objects);
         } else if (isLive) {
             // Subscribe rosSocket
             rosSocket.Subscribe("/listener", "std_msgs/String", subscriptionHandler);
@@ -142,24 +142,24 @@ public class ObjectCreator : MonoBehaviour {
         Parse(JSON.Parse(standardString.data));
     }
 
-    void CreateObjects(List<BasicObject> obj)
+    void CreateObjects(List<BasicObject> objects)
     {
-        foreach(BasicObject objects in obj) {
+        foreach(BasicObject obj in objects) {
             if(obj.id == 0) {
                 GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
                 cube.transform.position = obj.position;
-                cube.transform.orientation = obj.angle;
+                cube.transform.rotation = Quaternion.Euler(0, 0, obj.angle); // Will change will angle is better defined
                 Instantiate(cube);
             } else if (obj.id == 1) {
                 GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
                 sphere.transform.position = obj.position;
-                sphere.transform.orientation = obj.angle;
+                sphere.transform.rotation = Quaternion.Euler(0, 0, obj.angle); // Will change will angle is better defined
                 Instantiate(sphere);
             } else if (obj.id == 2) {
                 GameObject cylinder = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-                cylinder.transform.position = obj.psoition;
-                cylinder.transform.orientation = obj.angle;
-                Instatiate(cylinder);
+                cylinder.transform.position = obj.position;
+                cylinder.transform.rotation = Quaternion.Euler(0, 0, obj.angle); // Will change will angle is better defined
+                Instantiate(cylinder);
             }
         }
     }
