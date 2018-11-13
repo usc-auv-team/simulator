@@ -13,6 +13,7 @@ public class ObjectCreator : MonoBehaviour {
     private RosSocket rosSocket = new RosSocket("ws://192.168.56.102:9090");
 
     public Button PlayPause;
+    public Button LiveSwitch;
 	public Slider Progress;
 
 	bool isPlaying;
@@ -21,15 +22,15 @@ public class ObjectCreator : MonoBehaviour {
 	int frameCount;
 	int objectCount;
 
-	int currentFrameNum;
+	//int currentFrameNum;
 
-	GameData[] gameDatas;
-	GameObject[] gameObjects;
+	GameData[] gameData;
 
     DataFrame BigFrame;
 
     // Use this for initialization
     void Start () {
+        rosSocket.Subscribe("/listener", "std_msgs/String", subscriptionHandler);
         //string subscription_id = rosSocket.Subscribe("/listener", "std_msgs/String", subscriptionHandler);
 
         Parse("Assets/Data/sample.json");
@@ -48,52 +49,44 @@ public class ObjectCreator : MonoBehaviour {
 
 		frameCount = files.Length; // same for this one
 
-		currentFrameNum = 0;
-		gameDatas = new GameData[frameCount];
-		gameObjects = new GameObject[objectCount];
+		//currentFrameNum = 0;
+		gameData = new GameData[frameCount];
 
 		for (int i = 0; i < frameCount; i++) {
 			string filePath = Path.Combine (Application.streamingAssetsPath, files[i]);
 			string dataAsJson = File.ReadAllText (filePath);
-			gameDatas [i] = JsonUtility.FromJson<GameData> (dataAsJson);
+			gameData [i] = JsonUtility.FromJson<GameData> (dataAsJson);
 		}
 
 		isPlaying = false;
+        isLive = false;
 		Progress.maxValue = frameCount - 1;
 	}
 
 	void Update () {
-        if (isPlaying) {
-           Progress.value = (Progress.value + 1) % frameCount;
-        }
-
-        currentFrameNum = (int)Progress.value;
+        //if (isPlaying) {
+        //   Progress.value = (Progress.value + 1) % frameCount;
+        //}
+        //currentFrameNum = (int)Progress.value;
 
         //foreach (BasicObject obj in gameDatas[currentFrameNum].objects) {
         //   gameObjects[obj.id].transform.position = obj.position;
         //}
 
-        if (!isLive) {
-            DirectoryInfo directory = new DirectoryInfo("C:/Users/Public/Json");
+        if (!isLive) { // If not live
+            DirectoryInfo directory = new DirectoryInfo("Assets/Data");
             int jsonNum = directory.GetFiles().Length;
             FileInfo[] files = directory.GetFiles();
             // FileInfo myFile = (from f in directory.GetFiles() orderby f.LastWriteTime descending select f).First();
             DataFrame dframe = Parse(JSON.Parse(File.ReadAllText(files[(int)(jsonNum * Progress.value)].FullName)));
             CreateObjects(dframe.objects);
-        } else if (isLive) {
-            // Subscribe rosSocket
-            rosSocket.Subscribe("/listener", "std_msgs/String", subscriptionHandler);
-        }
+        } 
+        // else { // If live
+        //     // Subscribe rosSocket
+        //     rosSocket.Subscribe("/listener", "std_msgs/String", subscriptionHandler);
+        // }
     }
 
-	public void togglePlay () {
-		isPlaying = !isPlaying;
-		if (isPlaying) {
-			PlayPause.GetComponentInChildren<Text> ().text = "Pause";
-		} else {
-			PlayPause.GetComponentInChildren<Text> ().text = "Play";
-		}
-	}
 
     DataFrame Parse(JSONNode jsonData) {
         DataFrame dFrame = new DataFrame();
@@ -111,10 +104,11 @@ public class ObjectCreator : MonoBehaviour {
         //Objects
         for(int i = 0; i < jsonData["objects"].Count; i++) {
             JSONNode currObj = jsonData["objects"][i];
-            BasicObject basicObj = new BasicObject();
-            basicObj.id = currObj["id"];
-            basicObj.angle = currObj["th"];
-            basicObj.probability = currObj["p"];
+            BasicObject basicObj = new BasicObject {
+                id = currObj["id"],
+                angle = currObj["th"],
+                probability = currObj["p"]
+            };
             basicObj.position.Set(currObj["x"], currObj["y"], currObj["z"]);
 
             objects.Add(basicObj);
@@ -125,23 +119,27 @@ public class ObjectCreator : MonoBehaviour {
         return dFrame;
     }
 
-    void toggleLive() {
-        if (isLive) {
-            isLive = false;
-            GameObject.Find("ModeSwitch").GetComponentInChildren<Text>().text = "Logged";
-        } else if (!isLive) {
-            isLive = true;
-            GameObject.Find("ModeSwitch").GetComponentInChildren<Text>().text = "Live";
+	public void togglePlay () {
+        if (isPlaying) {
+            PlayPause.GetComponentInChildren<Text>().text = "Pause";
+        } 
+        else {
+            PlayPause.GetComponentInChildren<Text>().text = "Play";
         }
+		isPlaying = !isPlaying;
+	}
+
+    public void toggleLive() {
+        if (isLive) {
+            LiveSwitch.GetComponentInChildren<Text>().text = "Logged";
+        } 
+        else {
+            LiveSwitch.GetComponentInChildren<Text>().text = "Live";
+        }
+        isLive = !isLive;
     }
+
     // At some point we'll make the code perty
-
-    void subscriptionHandler(Message message) {
-        StandardString standardString = (StandardString)message;
-        Debug.Log(standardString.data);
-        Parse(JSON.Parse(standardString.data));
-    }
-
     void CreateObjects(List<BasicObject> objects) {
         DeleteAll();
         foreach(BasicObject obj in objects) {
@@ -171,5 +169,11 @@ public class ObjectCreator : MonoBehaviour {
         foreach (GameObject obj in GameObject.FindGameObjectsWithTag("obstacle")) {
             Destroy(obj);
         }
+    }
+
+    void subscriptionHandler(Message message) {
+        StandardString standardString = (StandardString)message;
+        Debug.Log(standardString.data);
+        Parse(JSON.Parse(standardString.data));
     }
 }
