@@ -33,7 +33,7 @@ public class ObjectCreator : MonoBehaviour {
         rosSocket.Subscribe("/listener", "std_msgs/String", subscriptionHandler);
         //string subscription_id = rosSocket.Subscribe("/listener", "std_msgs/String", subscriptionHandler);
 
-        Parse("Assets/Data/sample.json");
+        //Parse("Assets/Data/sample.json");
 
         objectCount = 10; // should read from configuration file later on
 
@@ -78,8 +78,8 @@ public class ObjectCreator : MonoBehaviour {
             int jsonNum = directory.GetFiles().Length;
             FileInfo[] files = directory.GetFiles();
             // FileInfo myFile = (from f in directory.GetFiles() orderby f.LastWriteTime descending select f).First();
-            DataFrame dframe = Parse(JSON.Parse(File.ReadAllText(files[(int)(jsonNum * Progress.value)].FullName)));
-            CreateObjects(dframe.objects);
+            //DataFrame dframe = Parse(JSON.Parse(File.ReadAllText(files[(int)(jsonNum * Progress.value)].FullName)));
+            //CreateObjects(dframe.objects);
         } 
         // else { // If live
         //     // Subscribe rosSocket
@@ -131,17 +131,17 @@ public class ObjectCreator : MonoBehaviour {
 
     public void toggleLive() {
         if (isLive) {
-            LiveSwitch.GetComponentInChildren<Text>().text = "Logged";
+            GameObject.Find("LiveSwitch").GetComponentInChildren<Text>().text = "Logged";
         } 
         else {
-            LiveSwitch.GetComponentInChildren<Text>().text = "Live";
+            GameObject.Find("LiveSwitch").GetComponentInChildren<Text>().text = "Live";
         }
         isLive = !isLive;
     }
 
     // At some point we'll make the code perty
     void CreateObjects(List<BasicObject> objects) {
-        DeleteAll();
+        //if (GameObject.FindGameObjectsWithTag("obstacle") != null) DeleteAll();
         foreach(BasicObject obj in objects) {
             if(obj.id == 0) {
                 GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
