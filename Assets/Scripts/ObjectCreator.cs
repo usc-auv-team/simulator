@@ -37,7 +37,7 @@ public class ObjectCreator : MonoBehaviour {
 		isPlaying = false;
         isLive = false;
 
-        DirectoryInfo directory = new DirectoryInfo("Assets/Data");
+        DirectoryInfo directory = new DirectoryInfo("Assets/Data/jsons");
         jsonNum = directory.GetFiles().Length;
         files = directory.GetFiles();
 
