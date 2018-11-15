@@ -22,9 +22,10 @@ public class ObjectCreator : MonoBehaviour {
 	int frameCount;
 	int objectCount;
 
-	//int currentFrameNum;
+    int jsonNum;
+    FileInfo[] files;
 
-	GameData[] gameData;
+	//int currentFrameNum;
 
     DataFrame BigFrame;
 
@@ -33,58 +34,22 @@ public class ObjectCreator : MonoBehaviour {
         rosSocket.Subscribe("/listener", "std_msgs/String", subscriptionHandler);
         //string subscription_id = rosSocket.Subscribe("/listener", "std_msgs/String", subscriptionHandler);
 
-        //Parse("Assets/Data/sample.json");
-
-        objectCount = 10; // should read from configuration file later on
-
-		Regex reg = new Regex (@"^[0-9]+\.json$");
-
-		string[] files = Directory.GetFiles (Application.streamingAssetsPath.ToString (), "*");
-
-		for (int i = 0; i < files.Length; i++) {
-			files[i] = Path.GetFileName(files[i]);
-		}
-
-		files = files.Where(path => reg.IsMatch(path)).ToArray();
-
-		frameCount = files.Length; // same for this one
-
-		//currentFrameNum = 0;
-		gameData = new GameData[frameCount];
-
-		for (int i = 0; i < frameCount; i++) {
-			string filePath = Path.Combine (Application.streamingAssetsPath, files[i]);
-			string dataAsJson = File.ReadAllText (filePath);
-			gameData [i] = JsonUtility.FromJson<GameData> (dataAsJson);
-		}
-
 		isPlaying = false;
         isLive = false;
-		Progress.maxValue = frameCount - 1;
+
+        DirectoryInfo directory = new DirectoryInfo("Assets/Data/jsons");
+        jsonNum = directory.GetFiles().Length;
+        files = directory.GetFiles();
+
+        Progress.maxValue = jsonNum - 1;
 	}
 
 	void Update () {
-        //if (isPlaying) {
-        //   Progress.value = (Progress.value + 1) % frameCount;
-        //}
-        //currentFrameNum = (int)Progress.value;
-
-        //foreach (BasicObject obj in gameDatas[currentFrameNum].objects) {
-        //   gameObjects[obj.id].transform.position = obj.position;
-        //}
-
-        if (!isLive) { // If not live
-            DirectoryInfo directory = new DirectoryInfo("Assets/Data");
-            int jsonNum = directory.GetFiles().Length;
-            FileInfo[] files = directory.GetFiles();
-            // FileInfo myFile = (from f in directory.GetFiles() orderby f.LastWriteTime descending select f).First();
-            //DataFrame dframe = Parse(JSON.Parse(File.ReadAllText(files[(int)(jsonNum * Progress.value)].FullName)));
-            //CreateObjects(dframe.objects);
-        } 
-        // else { // If live
-        //     // Subscribe rosSocket
-        //     rosSocket.Subscribe("/listener", "std_msgs/String", subscriptionHandler);
-        // }
+        if (isPlaying && !isLive) {
+           Progress.value = (Progress.value + 1) % jsonNum;
+           DataFrame dframe = Parse(JSON.Parse(File.ReadAllText(files[(int)(Progress.value)].FullName)));
+           CreateObjects(dframe.objects);
+        }
     }
 
 
@@ -141,7 +106,7 @@ public class ObjectCreator : MonoBehaviour {
 
     // At some point we'll make the code perty
     void CreateObjects(List<BasicObject> objects) {
-        //if (GameObject.FindGameObjectsWithTag("obstacle") != null) DeleteAll();
+        if (GameObject.FindGameObjectsWithTag("obstacle") != null) DeleteAll();
         foreach(BasicObject obj in objects) {
             if(obj.id == 0) {
                 GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
