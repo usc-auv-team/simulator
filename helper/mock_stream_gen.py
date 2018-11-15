@@ -1,60 +1,9 @@
 from typing import List
 import random, os
+import json
 
 
-class JSONable:
-    def __repr__(self):
-        return str(self.__dict__)
-
-    def __iter__(self):
-        for attr in dir(self):
-            if not attr.startswith('__') and not callable(getattr(self, attr)):
-                value = getattr(self, attr)
-                if not isinstance(value, (dict, list, str, int, float, bool)) and value != None:
-                    value = dict(value)
-                yield attr, value
-
-    def to_json(self, indent: int = -1):
-        json_str = str(dict(self)).replace('\'', '\"')
-        json_str = self.__prettify__(json_str, indent)
-        return json_str
-
-    def __prettify__(self, ugly, indent):
-        # -1 for \t as indent
-        inds = 0
-        ind_str = ''
-        pretty = ''
-        if indent == 0:
-            return ugly
-        if indent < 0:
-            ind_str = '\t'
-        else:
-            ind_str = ' ' * indent
-        for c in ugly:
-            if c == '{':
-                inds += 1
-                pretty += '{\n' + inds * ind_str
-            elif c == '[':
-                inds += 1
-                pretty += '[\n' + inds * ind_str
-            elif c == ' ':
-                pass
-            elif c == ':':
-                pretty += ': '
-            elif c == ',':
-                pretty += ',\n' + inds * ind_str
-            elif c == '}':
-                inds -= 1
-                pretty += '\n' + inds * ind_str + '}'
-            elif c == ']':
-                inds -= 1
-                pretty += '\n' + inds * ind_str + ']'
-            else:
-                pretty += c
-        return pretty
-
-
-class Vector3(JSONable):
+class Vector3:
     def __init__(self, x: float = 0., y: float = 0., z: float = 0.):
         self.x = x
         self.y = y
@@ -91,7 +40,7 @@ class Vector3(JSONable):
         return self
 
 
-class BasicObject(JSONable):
+class BasicObject:
     def __init__(self, id_: int, type_: int, angle: float, probability: float, position: 'Vector3' = Vector3()):
         self.id_ = id_
         self.type_ = type_
@@ -99,8 +48,13 @@ class BasicObject(JSONable):
         self.angle = angle
         self.probability = probability
 
+    def to_json_string(self):
+        data = {"id": self.id_, "type": self.type_, "x": self.position.x, "y": self.position.y, "z": self.position.z,
+                "th": self.angle, "p": self.probability}
+        return data
 
-class DataFrame(JSONable):
+
+class DataFrame:
     def __init__(self, timestamp: int, objects: List[BasicObject], depth: float, rotation: float,
                  position: 'Vector3' = Vector3(), acceleration: 'Vector3' = Vector3(), speed: 'Vector3' = Vector3()):
         self.timestamp = timestamp
@@ -111,6 +65,16 @@ class DataFrame(JSONable):
         self.depth = depth
         self.rotation = rotation
 
+    def to_json(self):
+        # objects_json = []
+        # for obj in self.objects:
+        #     objects_json.append(obj.to_json())
+
+        data = {"ts": self.timestamp, "objects": self.objects, "x": self.position.x, "y": self.position.y,
+                "z": self.position.z, "ax": self.acceleration.x, "ay": self.acceleration.y, "az": self.acceleration.z,
+                "ux": self.speed.x, "uy": self.speed.y, "uz": self.speed.z, "d": self.depth, "th": self.rotation}
+        return json.dumps(data, default=lambda x: x.to_json_string(), sort_keys=False, indent=4)
+
 
 # Current algorithm generates n objects and describes them as the Turtle moves in a randomly
 # generated path. Objects are created at random static positions and locations change in relation
@@ -120,10 +84,10 @@ def random_world_gen(frame_count: int, object_count: int = 10, type_count: int =
     timestamp = 0
     object_list = []
     current_position = Vector3(0, 0, 0)
-    current_acceleration = Vector3(0, 0, 0)  # Unnacounted
-    current_speed = Vector3(0, 0, 0)  # Unnacounted
+    current_acceleration = Vector3(0, 0, 0)  # Unaccounted
+    current_speed = Vector3(0, 0, 0)  # Unaccounted
     current_depth = 0
-    current_rotation = 0  # Unnacounted
+    current_rotation = 0  # Unaccounted
 
     # Create n objects
     for i in range(object_count):
@@ -150,6 +114,7 @@ def random_world_gen(frame_count: int, object_count: int = 10, type_count: int =
         # Write frame object to file
         frame_obj = DataFrame(timestamp, object_list, current_depth, current_rotation, current_position,
                               current_acceleration, current_speed)
+
         frame_json = frame_obj.to_json()
         file_name = "{:0>6}.json".format(i)
         frame_file = open(file_name, 'w')
