@@ -37,7 +37,7 @@ public class ObjectCreator : MonoBehaviour {
 		isPlaying = false;
         isLive = false;
 
-        DirectoryInfo directory = new DirectoryInfo("Assets/Data/jsons");
+        DirectoryInfo directory = new DirectoryInfo("Assets/Data");
         jsonNum = directory.GetFiles().Length;
         files = directory.GetFiles();
 
@@ -113,18 +113,21 @@ public class ObjectCreator : MonoBehaviour {
                 cube.tag = "obstacle";
                 cube.transform.position = obj.position;
                 cube.transform.rotation = Quaternion.Euler(0, 0, obj.angle); // Will change will angle is better defined
+                cube.GetComponent<Renderer>().material.color = GetColor(obj.probability);
                 Instantiate(cube);
             } else if (obj.id == 1) {
                 GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
                 sphere.tag = "obstacle";
                 sphere.transform.position = obj.position;
                 sphere.transform.rotation = Quaternion.Euler(0, 0, obj.angle); // Will change will angle is better defined
+                sphere.GetComponent<Renderer>().material.color = GetColor(obj.probability);
                 Instantiate(sphere);
             } else if (obj.id == 2) {
                 GameObject cylinder = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
                 cylinder.tag = "obstacle";
                 cylinder.transform.position = obj.position;
                 cylinder.transform.rotation = Quaternion.Euler(0, 0, obj.angle); // Will change will angle is better defined
+                cylinder.GetComponent<Renderer>().material.color = GetColor(obj.probability);
                 Instantiate(cylinder);
             }
         }
@@ -133,6 +136,20 @@ public class ObjectCreator : MonoBehaviour {
     void DeleteAll() {
         foreach (GameObject obj in GameObject.FindGameObjectsWithTag("obstacle")) {
             Destroy(obj);
+        }
+    }
+
+    Color GetColor(double probability) {
+        if (probability >= 0 && probability < 25) {
+            return Color.red;
+        } else if (probability >= 25 && probability < 50) {
+            return Color.yellow;
+        } else if (probability >= 50 && probability < 75) {
+            return Color.green;
+        } else if (probability >= 75 && probability <= 100) {
+            return Color.blue;
+        } else {
+            return Color.black;
         }
     }
 
