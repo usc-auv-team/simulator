@@ -25,8 +25,6 @@ public class ObjectCreator : MonoBehaviour {
     int jsonNum;
     FileInfo[] files;
 
-	//int currentFrameNum;
-
     DataFrame BigFrame;
 
     // Use this for initialization
@@ -56,7 +54,6 @@ public class ObjectCreator : MonoBehaviour {
     DataFrame Parse(JSONNode jsonData) {
         DataFrame dFrame = new DataFrame();
         List<BasicObject> objects = new List<BasicObject>();
-        // JSONNode jsonData = JSON.Parse(File.ReadAllText(filePath));
 
         //Main DataFrame components
         dFrame.timeStamp = jsonData["ts"];
@@ -112,21 +109,21 @@ public class ObjectCreator : MonoBehaviour {
                 GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
                 cube.tag = "obstacle";
                 cube.transform.position = obj.position;
-                cube.transform.rotation = Quaternion.Euler(0, 0, obj.angle); // Will change will angle is better defined
+                cube.transform.rotation = Quaternion.Euler(0, 0, obj.angle); // Will change when angle is better defined
                 cube.GetComponent<Renderer>().material.color = GetColor(obj.probability);
                 Instantiate(cube);
             } else if (obj.id == 1) {
                 GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
                 sphere.tag = "obstacle";
                 sphere.transform.position = obj.position;
-                sphere.transform.rotation = Quaternion.Euler(0, 0, obj.angle); // Will change will angle is better defined
+                sphere.transform.rotation = Quaternion.Euler(0, 0, obj.angle); // Will change when angle is better defined
                 sphere.GetComponent<Renderer>().material.color = GetColor(obj.probability);
                 Instantiate(sphere);
             } else if (obj.id == 2) {
                 GameObject cylinder = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
                 cylinder.tag = "obstacle";
                 cylinder.transform.position = obj.position;
-                cylinder.transform.rotation = Quaternion.Euler(0, 0, obj.angle); // Will change will angle is better defined
+                cylinder.transform.rotation = Quaternion.Euler(0, 0, obj.angle); // Will change when angle is better defined
                 cylinder.GetComponent<Renderer>().material.color = GetColor(obj.probability);
                 Instantiate(cylinder);
             }
