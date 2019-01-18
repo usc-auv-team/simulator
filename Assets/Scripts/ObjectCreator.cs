@@ -31,9 +31,6 @@ public class ObjectCreator : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
-        //rosSocket.Subscribe("/listener", "std_msgs/String", subscriptionHandler);
-        //string subscription_id = rosSocket.Subscribe("/listener", "std_msgs/String", subscriptionHandler);
-
 		isPlaying = false;
         isLive = false;
 
@@ -42,7 +39,9 @@ public class ObjectCreator : MonoBehaviour {
         files = directory.GetFiles();
 
         Progress.maxValue = jsonNum - 1;
-	}
+
+        ROSConnector.RosSubscribe("/json", "std_msgs/String", SubscriptionHandler);
+    }
 
 	void Update () {
         if (isPlaying && !isLive) {
@@ -153,7 +152,7 @@ public class ObjectCreator : MonoBehaviour {
         }
     }
 
-    void subscriptionHandler(Message message) {
+    void SubscriptionHandler(Message message) {
         StandardString standardString = (StandardString)message;
         Debug.Log(standardString.data);
         Parse(JSON.Parse(standardString.data));

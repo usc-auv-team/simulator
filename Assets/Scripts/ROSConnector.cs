@@ -13,7 +13,7 @@ class ROSConnector : MonoBehaviour {
     static readonly string uri = "ws://192.168.56.102:9090"; // IP of ROS machine
     public static RosSocket rosSocket = new RosSocket(uri);
     public static string publicationId;
-       
+ 
     private static StandardString Message; // Message to be sent via ROS
 
     private void Start() {
@@ -25,8 +25,14 @@ class ROSConnector : MonoBehaviour {
     public static void SendRosMessage(string msg) {
         Message.data = msg;
         rosSocket.Publish(publicationId, Message);
-        Debug.Log("Sent:" + msg);
+        Debug.Log("Sent:" + msg);]
         Message.data = "";
     }
+
+    public static void RosSubscribe(string channel, string type, RosSocket.MessageHandler messageHandler) {
+        rosSocket.Subscribe(channel, type, messageHandler);
+        // string subscription_id = rosSocket.Subscribe(channel, type, messageHandler);
+    }
+
 }
 
