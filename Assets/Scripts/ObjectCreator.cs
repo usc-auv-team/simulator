@@ -5,124 +5,156 @@ using UnityEngine.UI;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Linq;
+using SimpleJSON;
+using RosSharp.RosBridgeClient;
 
 public class ObjectCreator : MonoBehaviour {
 
-	public Button PlayPause;
+   // private RosSocket rosSocket = new RosSocket("ws://192.168.56.102:9090");
+
+    public Button PlayPause;
+    public Button LiveSwitch;
 	public Slider Progress;
 
 	bool isPlaying;
+    bool isLive;
 
 	int frameCount;
 	int objectCount;
 
-	int currentFrameNum;
+    int jsonNum;
+    FileInfo[] files;
 
-	GameData[] gameDatas;
-	GameObject[] gameObjects;
+	//int currentFrameNum;
 
-	// Use this for initialization
-	void Start () {
+    DataFrame BigFrame;
 
-
-		objectCount = 10; // should read from configuration file later on
-
-		Regex reg = new Regex (@"^[0-9]+\.json$");
-
-		string[] files = Directory.GetFiles (Application.streamingAssetsPath.ToString (), "*");
-
-		for (int i = 0; i < files.Length; i++) {
-			files[i] = Path.GetFileName(files[i]);
-		}
-
-		files = files.Where(path => reg.IsMatch(path)).ToArray();
-
-		frameCount = files.Length; // same for this one
-
-		currentFrameNum = 0;
-		gameDatas = new GameData[frameCount];
-		gameObjects = new GameObject[objectCount];
-
-		for (int i = 0; i < frameCount; i++) {
-			string filePath = Path.Combine (Application.streamingAssetsPath, files[i]);
-			string dataAsJson = File.ReadAllText (filePath);
-			gameDatas [i] = JsonUtility.FromJson<GameData> (dataAsJson);
-		}
-
-		foreach (BasicObject obj in gameDatas[currentFrameNum].objects) {
-			PrimitiveType type = PrimitiveType.Cube;
-			switch (obj.type) {
-			case 0:
-				type = PrimitiveType.Cube;
-				break;
-			case 1:
-				type = PrimitiveType.Sphere;
-				break;
-			case 2:
-				type = PrimitiveType.Cylinder;
-				break;
-			}
-			gameObjects[obj.id] = GameObject.CreatePrimitive (type);
-			gameObjects[obj.id].transform.position = obj.position;
-			gameObjects[obj.id].transform.eulerAngles = obj.orientation;
-		}
-
-
+    // Use this for initialization
+    void Start () {
 		isPlaying = false;
-		Progress.maxValue = frameCount - 1;
+        isLive = false;
 
+        DirectoryInfo directory = new DirectoryInfo("Assets/Data/jsons");
+        jsonNum = directory.GetFiles().Length;
+        files = directory.GetFiles();
 
-//			objs = loadedData.objects;
-//			for (int i = 0; i < objs.Length; i++) {
-//				Debug.Log ("object N.O.: " + i);
-//				Debug.Log ("id: " + objs [i].id);
-//				Debug.Log ("type: " + objs [i].type);
-//				Debug.Log ("position: " + objs [i].position);
-//				Debug.Log ("orientation: " + objs [i].orientation);
-//				Debug.Log ("linear_velocity: " + objs [i].linear_velocity);
-//				Debug.Log ("angular_velocity: " + objs [i].angular_velocity);
-//				Debug.Log ("linear_acceleration: " + objs [i].linear_acceleration);
-//				Debug.Log ("angular_acceleration: " + objs [i].angular_acceleration);
-//
-//				PrimitiveType type = PrimitiveType.Cube;
-//				switch (objs [i].type) {
-//				case 0:
-//					type = PrimitiveType.Cube;
-//					break;
-//				case 1:
-//					type = PrimitiveType.Sphere;
-//					break;
-//				}
-//
-//				GameObject instance = GameObject.CreatePrimitive (type);
-//				instance.transform.position = objs [i].position;
-//				instance.transform.eulerAngles = objs [i].orientation;
-//
-//			}
-	}
+        Progress.maxValue = jsonNum - 1;
+
+        ROSConnector.RosSubscribe("/json", "std_msgs/String", SubscriptionHandler);
+    }
 
 	void Update () {
+        if (isPlaying && !isLive) {
+           Progress.value = (Progress.value + 1) % jsonNum;
+           DataFrame dframe = Parse(JSON.Parse(File.ReadAllText(files[(int)(Progress.value)].FullName)));
+           CreateObjects(dframe.objects);
+        }
+    }
 
-		if (isPlaying) {
-			Progress.value = (Progress.value + 1) % frameCount;
-		}
 
-		currentFrameNum = (int)Progress.value;
+    DataFrame Parse(JSONNode jsonData) {
+        DataFrame dFrame = new DataFrame();
+        List<BasicObject> objects = new List<BasicObject>();
+        // JSONNode jsonData = JSON.Parse(File.ReadAllText(filePath));
 
-		foreach (BasicObject obj in gameDatas[currentFrameNum].objects) {
-			gameObjects[obj.id].transform.position = obj.position;
-			gameObjects[obj.id].transform.eulerAngles = obj.orientation;
-		}
+        //Main DataFrame components
+        dFrame.timeStamp = jsonData["ts"];
+        dFrame.position.Set(jsonData["x"], jsonData["y"], jsonData["z"]);
+        dFrame.acceleration.Set(jsonData["ax"], jsonData["ay"], jsonData["az"]);
+        dFrame.speed.Set(jsonData["ux"], jsonData["uy"], jsonData["uz"]);
+        dFrame.depth = jsonData["d"];
+        dFrame.rotation = jsonData["th"];
 
-	}
+        //Objects
+        for(int i = 0; i < jsonData["objects"].Count; i++) {
+            JSONNode currObj = jsonData["objects"][i];
+            BasicObject basicObj = new BasicObject {
+                id = currObj["id"],
+                angle = currObj["th"],
+                probability = currObj["p"]
+            };
+            basicObj.position.Set(currObj["x"], currObj["y"], currObj["z"]);
+
+            objects.Add(basicObj);
+            Debug.Log(basicObj.ToString());
+        }
+        dFrame.objects = objects;
+        Debug.Log(dFrame.ToString());
+        return dFrame;
+    }
 
 	public void togglePlay () {
+        if (isPlaying) {
+            PlayPause.GetComponentInChildren<Text>().text = "Pause";
+        } 
+        else {
+            PlayPause.GetComponentInChildren<Text>().text = "Play";
+        }
 		isPlaying = !isPlaying;
-		if (isPlaying) {
-			PlayPause.GetComponentInChildren<Text> ().text = "Pause";
-		} else {
-			PlayPause.GetComponentInChildren<Text> ().text = "Play";
-		}
 	}
 
+    public void toggleLive() {
+        if (isLive) {
+            GameObject.Find("LiveSwitch").GetComponentInChildren<Text>().text = "Logged";
+        } 
+        else {
+            GameObject.Find("LiveSwitch").GetComponentInChildren<Text>().text = "Live";
+        }
+        isLive = !isLive;
+    }
+
+    // At some point we'll make the code perty
+    void CreateObjects(List<BasicObject> objects) {
+        if (GameObject.FindGameObjectsWithTag("obstacle") != null) DeleteAll();
+        foreach(BasicObject obj in objects) {
+            if(obj.id == 0) {
+                GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                cube.tag = "obstacle";
+                cube.transform.position = obj.position;
+                cube.transform.rotation = Quaternion.Euler(0, 0, obj.angle); // Will change will angle is better defined
+                cube.GetComponent<Renderer>().material.color = GetColor(obj.probability);
+                Instantiate(cube);
+            } else if (obj.id == 1) {
+                GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                sphere.tag = "obstacle";
+                sphere.transform.position = obj.position;
+                sphere.transform.rotation = Quaternion.Euler(0, 0, obj.angle); // Will change will angle is better defined
+                sphere.GetComponent<Renderer>().material.color = GetColor(obj.probability);
+                Instantiate(sphere);
+            } else if (obj.id == 2) {
+                GameObject cylinder = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+                cylinder.tag = "obstacle";
+                cylinder.transform.position = obj.position;
+                cylinder.transform.rotation = Quaternion.Euler(0, 0, obj.angle); // Will change will angle is better defined
+                cylinder.GetComponent<Renderer>().material.color = GetColor(obj.probability);
+                Instantiate(cylinder);
+            }
+        }
+    }
+
+    void DeleteAll() {
+        foreach (GameObject obj in GameObject.FindGameObjectsWithTag("obstacle")) {
+            Destroy(obj);
+        }
+    }
+
+    Color GetColor(double probability) {
+        if (probability >= 0 && probability < 25) {
+            return Color.red;
+        } else if (probability >= 25 && probability < 50) {
+            return Color.yellow;
+        } else if (probability >= 50 && probability < 75) {
+            return Color.green;
+        } else if (probability >= 75 && probability <= 100) {
+            return Color.blue;
+        } else {
+            return Color.black;
+        }
+    }
+
+    void SubscriptionHandler(Message message) {
+        StandardString standardString = (StandardString)message;
+        Debug.Log(standardString.data);
+        Parse(JSON.Parse(standardString.data));
+    }
 }
