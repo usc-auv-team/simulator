@@ -34,19 +34,25 @@ public class ROSConnector : MonoBehaviour {
     }
 
     // Update is called once per frame
-    void OnDestroy() {
-
+    private void OnDestroy() {
+        // Close any existing connection
+        if (status == Status.SUCCESS) rosSocket.Close();
     }
 
     // Connect to ROS
     public void Connect() {
-        // string url = "ws://" + inputField.GetComponent<Text>().text;
-        string uri = "ws://192.168.1.195:9090";
-        Debug.Log("Attempting connection @" + uri);
+        // Close any prior connection
+        if (status == Status.SUCCESS) rosSocket.Close();
+
+        string uri = "ws://" + inputField.GetComponent<Text>().text;
+        //string uri = "ws://192.168.1.195:9090";
+        Debug.Log("Attempting connection @ \"" + uri + "\"");
         UpdateStatus(Status.TRYING);
+
         // Create protocol and attempt connection
         protocol = new WebSocketSharpProtocol(uri);
         protocol.OnConnected += Protocol_OnConnected;  // Setup callback
+        protocol.Connect();
 
         // If timeout set status to failed
     }
