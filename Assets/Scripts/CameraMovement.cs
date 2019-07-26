@@ -15,11 +15,13 @@ public class CameraMovement : MonoBehaviour {
     public float zoomMin = -1.0f;
     public float zoomMax = -10.0f;
 
+    Vector3 prevPos = Vector3.zero;
+
     float rotationYAxis = 0.0f;
     float rotationXAxis = 0.0f;
     float velocityX = 0.0f;
     float velocityY = 0.0f;
- 
+
     void Start() {
 
         if (!objectTarget) {
@@ -35,14 +37,20 @@ public class CameraMovement : MonoBehaviour {
     }
 
     void LateUpdate() {
+        // Get the camera position before applying transformations
+        prevPos = cameraTarget.position;
+
         ZoomCamera();
         MoveCamera();
+
+        // Check if the updated position is different from the previous position
+        cameraTarget.hasChanged = !(prevPos == cameraTarget.position);
     }
 
     // If right mouse button is held down, change rotation of this object
     // to follow path of mouse
     void MoveCamera() {
-        
+
         if (Input.GetMouseButton(1)) {
             velocityX += xSpeed * Input.GetAxis("Mouse X") * 0.02f;
             velocityY += ySpeed * Input.GetAxis("Mouse Y") * 0.02f;
@@ -82,7 +90,7 @@ public class CameraMovement : MonoBehaviour {
 
         if (angle < -360f) { angle += 360f; }
         if (angle > 360f) { angle -= 360f; }
-        
+
         return Mathf.Clamp(angle, min, max);
     }
 }
