@@ -13,18 +13,23 @@ public class WaterCameraInteractivity : MonoBehaviour {
     [SerializeField] GameObject topWater = null;
     [SerializeField] GameObject botWater = null;
 
-    Camera mainCam = null;
+    // Camera currently being used to render
+    Camera cam = null;
 
     void Start() {
-        mainCam = Camera.main;
-        if (!mainCam) { Debug.LogError("Failed to find main camera in scene."); }
+        cam = Camera.main;
+        if (!cam) { Debug.LogError("Failed to find current camera in scene."); }
 
         if (!topWater) { Debug.LogError("Failed to find reference to top water game object."); }
         if (!botWater) { Debug.LogError("Failed to find reference to bottom water game object."); }
+
+        // Configure which water object to render from the start
+        UpdateWaterLevel();
+        
     }
 
     void Update() {
-        if (mainCam.transform.hasChanged) { UpdateWaterLevel(); }
+        if (cam.transform.hasChanged) { UpdateWaterLevel(); }
     }
 
     // Since only one water object is visible to the camera
@@ -50,7 +55,7 @@ public class WaterCameraInteractivity : MonoBehaviour {
 
     // Find where the camera is in relation to the two water objects
     private Location GetCameraLocation() {
-        float camY = mainCam.transform.position.y;
+        float camY = cam.transform.position.y;
         float botY = botWater.transform.position.y;
         float topY = topWater.transform.position.y;
 
