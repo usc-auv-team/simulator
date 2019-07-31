@@ -987,12 +987,12 @@ Transform:
   - {fileID: 27316005}
   - {fileID: 1451518109}
   - {fileID: 1305879014}
-  - {fileID: 1005559473}
-  - {fileID: 346974092}
-  - {fileID: 1888056825}
-  - {fileID: 328742458}
-  - {fileID: 733422657}
   - {fileID: 1113123904}
+  - {fileID: 1005559473}
+  - {fileID: 1888056825}
+  - {fileID: 733422657}
+  - {fileID: 328742458}
+  - {fileID: 346974092}
   - {fileID: 1018668877}
   m_Father: {fileID: 845515712}
   m_RootOrder: 1
@@ -1102,7 +1102,7 @@ GameObject:
   - component: {fileID: 328742461}
   - component: {fileID: 328742460}
   m_Layer: 0
-  m_Name: Brace (4)
+  m_Name: Brace (5)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1120,7 +1120,7 @@ Transform:
   m_LocalScale: {x: 0.3, y: 0.05, z: 0.15}
   m_Children: []
   m_Father: {fileID: 255197291}
-  m_RootOrder: 20
+  m_RootOrder: 21
   m_LocalEulerAnglesHint: {x: 0, y: 45, z: 0}
 --- !u!23 &328742460
 MeshRenderer:
@@ -1260,7 +1260,7 @@ GameObject:
   - component: {fileID: 346974095}
   - component: {fileID: 346974094}
   m_Layer: 0
-  m_Name: Brace (2)
+  m_Name: Brace (6)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1278,7 +1278,7 @@ Transform:
   m_LocalScale: {x: 0.3, y: 0.05, z: 0.15}
   m_Children: []
   m_Father: {fileID: 255197291}
-  m_RootOrder: 18
+  m_RootOrder: 22
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!23 &346974094
 MeshRenderer:
@@ -2243,7 +2243,7 @@ GameObject:
   - component: {fileID: 733422660}
   - component: {fileID: 733422659}
   m_Layer: 0
-  m_Name: Brace (5)
+  m_Name: Brace (4)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2261,7 +2261,7 @@ Transform:
   m_LocalScale: {x: 0.3, y: 0.05, z: 0.15}
   m_Children: []
   m_Father: {fileID: 255197291}
-  m_RootOrder: 21
+  m_RootOrder: 20
   m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
 --- !u!23 &733422659
 MeshRenderer:
@@ -2594,12 +2594,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6319996cd7a807e44a762d9499d380b0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  upForce: 1
-  downForce: 1
-  forwardForce: 1
-  backwardForce: 1
-  leftForce: 1
-  rightForce: 1
+  upForce: 5
+  downForce: 5
+  forwardForce: 5
+  backwardForce: 5
+  leftForce: 2
+  rightForce: 2
 --- !u!54 &845515714
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -2609,7 +2609,7 @@ Rigidbody:
   m_GameObject: {fileID: 845515711}
   serializedVersion: 2
   m_Mass: 1
-  m_Drag: 0
+  m_Drag: 1
   m_AngularDrag: 1
   m_UseGravity: 0
   m_IsKinematic: 0
@@ -3010,7 +3010,7 @@ GameObject:
   - component: {fileID: 1005559476}
   - component: {fileID: 1005559475}
   m_Layer: 0
-  m_Name: Brace (1)
+  m_Name: Brace (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3028,7 +3028,7 @@ Transform:
   m_LocalScale: {x: 0.3, y: 0.05, z: 0.15}
   m_Children: []
   m_Father: {fileID: 255197291}
-  m_RootOrder: 17
+  m_RootOrder: 18
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!23 &1005559475
 MeshRenderer:
@@ -3168,7 +3168,7 @@ GameObject:
   - component: {fileID: 1113123907}
   - component: {fileID: 1113123906}
   m_Layer: 0
-  m_Name: Brace (6)
+  m_Name: Brace (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3186,7 +3186,7 @@ Transform:
   m_LocalScale: {x: 0.3, y: 0.05, z: 0.15}
   m_Children: []
   m_Father: {fileID: 255197291}
-  m_RootOrder: 22
+  m_RootOrder: 17
   m_LocalEulerAnglesHint: {x: 0, y: 45, z: 0}
 --- !u!23 &1113123906
 MeshRenderer:
