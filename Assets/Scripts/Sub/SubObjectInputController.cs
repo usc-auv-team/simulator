@@ -4,10 +4,10 @@ using UnityEngine;
 
 public class SubObjectInputController : MonoBehaviour {
 
-    private Rigidbody rb;
+    private RigidbodyManager rbm;
 
     private void Start() {
-        rb = GetComponent<Rigidbody>();
+        rbm = GetComponent<RigidbodyManager>();
     }
 
     private bool up = false;
@@ -57,12 +57,12 @@ public class SubObjectInputController : MonoBehaviour {
 
     private void ApplyForce(bool movement, Vector3 direction, float force) {
         if (movement) {
-            rb.AddRelativeForce(direction * force, ForceMode.Force);
+            rbm.AddRelativeForce(direction * force);
         }
     }
     private void ApplyTorque(bool movement, Vector3 direction, float force) {
         if (movement) {
-            rb.AddRelativeTorque(direction * force, ForceMode.Force);
+            rbm.AddRelativeTorque(direction * force);
         }
     }
 }
