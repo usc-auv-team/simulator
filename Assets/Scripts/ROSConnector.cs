@@ -1,38 +1,96 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
-using System.IO;
-using System.Text.RegularExpressions;
-using System.Linq;
-using SimpleJSON;
+using System;
 using RosSharp.RosBridgeClient;
+using RosSharp.RosBridgeClient.Protocols;
+using std_msgs = RosSharp.RosBridgeClient.Messages.Standard;
 
-class ROSConnector : MonoBehaviour {
-    // RosSocket and publicationId connect unity to ROS
-    static readonly string uri = "ws://192.168.56.102:9090"; // IP of ROS machine
-    public static RosSocket rosSocket = new RosSocket(uri);
-    public static string publicationId;
- 
-    private static StandardString Message; // Message to be sent via ROS
+public class ROSConnector : MonoBehaviour {
+    RosSocket rosSocket;
+    WebSocketSharpProtocol protocol;
 
+    private enum Status { NONE, TRYING, FAILED, SUCCESS };
+    private Status status = Status.NONE;
+    [SerializeField] public GameObject inputField = null;
+    [SerializeField] public GameObject statusObject = null;
+    private Image statusImage = null;
+
+    // Start is called before the first frame update
     private void Start() {
-        Message = new StandardString();
-        publicationId = rosSocket.Advertise("/unity", "std_msgs/String"); // topic, type
-        SendRosMessage("Connected to ROS!"); // Confirmation message to ROS
+        if (!inputField) {
+            Debug.LogError("Failed to read input field.");
+        }
+        if (!statusObject) {
+            Debug.LogError("Failed to read status indicator.");
+        }
+
+        statusImage = statusObject.GetComponent<Image>();
+
+        if (!statusImage) {
+            Debug.LogError("Failed to get image component of status object.");
+        }
+
+        statusImage.color = Color.white;
     }
 
-    public static void SendRosMessage(string msg) {
-        Message.data = msg;
-        rosSocket.Publish(publicationId, Message);
-        Debug.Log("Sent:" + msg);]
-        Message.data = "";
+    // Update is called once per frame
+    private void OnDestroy() {
+        // Close any existing connection
+        if (status == Status.SUCCESS) rosSocket.Close();
     }
 
-    public static void RosSubscribe(string channel, string type, RosSocket.MessageHandler messageHandler) {
-        rosSocket.Subscribe(channel, type, messageHandler);
-        // string subscription_id = rosSocket.Subscribe(channel, type, messageHandler);
+    // Connect to ROS
+    public void Connect() {
+        // Close any prior connection
+        if (status == Status.SUCCESS) rosSocket.Close();
+
+        string uri = "ws://" + inputField.GetComponent<Text>().text;
+        //string uri = "ws://192.168.1.195:9090";
+        Debug.Log("Attempting connection @ \"" + uri + "\"");
+        UpdateStatus(Status.TRYING);
+
+        // Create protocol and attempt connection
+        protocol = new WebSocketSharpProtocol(uri);
+        protocol.OnConnected += Protocol_OnConnected;  // Setup callback
+        protocol.Connect();
+
+        // If timeout set status to failed
     }
 
+    // Callback function for when protocol connects
+    private void Protocol_OnConnected(object sender, EventArgs e) {
+        Debug.Log("Socket connected!");
+        // If socket connected, create the RosSocket
+        rosSocket = new RosSocket(protocol);
+        PublishString("/listener", "Connected to ROS!");
+        UpdateStatus(Status.SUCCESS);
+    }
+
+    // Publish string to ROS
+    public void PublishString(string topic, string msg) {
+        // Create new standard string and set its data to msg
+        std_msgs.String message = new std_msgs.String {
+            data = msg
+        };
+
+        string publicationId = rosSocket.Advertise<std_msgs.String>(topic); // Topic must be in "/topic" format
+        rosSocket.Publish(publicationId, message);
+        Debug.Log("Sent:" + msg);
+    }
+
+    // Update status icon based on status
+    private void UpdateStatus(Status status) {
+        this.status = status;
+        switch(status) {
+            case Status.SUCCESS:
+                statusImage.color = Color.green;
+                break;
+            case Status.TRYING:
+                statusImage.color = Color.yellow;
+                break;
+            case Status.FAILED:
+                statusImage.color = Color.red;
+                break;
+        }
+    }
 }
-
