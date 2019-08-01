@@ -3,41 +3,33 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class CameraMovement : MonoBehaviour {
-    public Transform objectTarget = null;
-    public Transform cameraTarget = null;
-    public float xSpeed = 100f;
-    public float ySpeed = 100.0f;
-    public float yMinLimit = -90f;
-    public float yMaxLimit = 90f;
-    public float smoothTime = 50f;
 
-    public float zoomSpeed = 3.0f;
-    public float zoomMin = -1.0f;
-    public float zoomMax = -10.0f;
+    [SerializeField] private Transform cameraTarget = null;
+    [SerializeField] private float xSpeed = 100f;
+    [SerializeField] private float ySpeed = 100.0f;
+    [SerializeField] private float yMinLimit = -90f;
+    [SerializeField] private float yMaxLimit = 90f;
+    [SerializeField] private float smoothTime = 50f;
 
-    Vector3 prevPos = Vector3.zero;
+    [SerializeField] private float zoomSpeed = 3.0f;
+    [SerializeField] private float zoomMin = -1.0f;
+    [SerializeField] private float zoomMax = -10.0f;
 
-    float rotationYAxis = 0.0f;
-    float rotationXAxis = 0.0f;
-    float velocityX = 0.0f;
-    float velocityY = 0.0f;
+    private Vector3 prevPos = Vector3.zero;
 
-    void Start() {
+    private float rotationYAxis = 0.0f;
+    private float rotationXAxis = 0.0f;
+    private float velocityX = 0.0f;
+    private float velocityY = 0.0f;
 
-        if (!objectTarget) {
-            Debug.LogError("Did not find object target.");
-        }
-
-        if (!cameraTarget) {
-            Debug.LogError("Did not find camera target.");
-        }
-
+    private void Start() {
         rotationYAxis = transform.eulerAngles.y;
         rotationXAxis = transform.eulerAngles.x;
     }
 
-    void LateUpdate() {
-        // Get the camera position before applying transformations
+    private void LateUpdate() {
+
+        // Save camera position before applying transformations
         prevPos = cameraTarget.position;
 
         ZoomCamera();
@@ -47,9 +39,8 @@ public class CameraMovement : MonoBehaviour {
         cameraTarget.hasChanged = !(prevPos == cameraTarget.position);
     }
 
-    // If right mouse button is held down, change rotation of this object
-    // to follow path of mouse
-    void MoveCamera() {
+    // If right mouse button is held down, rotate the object so the camera follows it
+    private void MoveCamera() {
 
         if (Input.GetMouseButton(1)) {
             velocityX += xSpeed * Input.GetAxis("Mouse X") * 0.02f;
@@ -68,28 +59,28 @@ public class CameraMovement : MonoBehaviour {
         velocityY = Mathf.Lerp(velocityY, 0, Time.deltaTime * smoothTime);
     }
 
-    // If right mouse button is held down, change translation of camera
-    // to move it closer or farther
-    void ZoomCamera() {
+    // If right mouse button is held down, move the camera closer or farther
+    private void ZoomCamera() {
 
         if (Input.GetMouseButton(1)) {
 
-            Vector3 position = cameraTarget.transform.localPosition;
+            Vector3 newCameraPosition = cameraTarget.transform.localPosition;
+
             float scrollDelta = Input.GetAxisRaw("Mouse ScrollWheel") * zoomSpeed;
+            newCameraPosition.z += scrollDelta;
 
-            position.z += scrollDelta;
-            if (position.z > zoomMin) { position.z = zoomMin; }
-            if (position.z < zoomMax) { position.z = zoomMax; }
+            if (newCameraPosition.z > zoomMin) { newCameraPosition.z = zoomMin; }
+            else if (newCameraPosition.z < zoomMax) { newCameraPosition.z = zoomMax; }
 
-            cameraTarget.transform.localPosition = position;
+            cameraTarget.transform.localPosition = newCameraPosition;
         }
     }
 
-    // Keeps given angle with range (-360, 360) and supplied min and max
-    float ClampAngle(float angle, float min, float max) {
+    // Keeps given angle with range [-360, 360] then between [min, max]
+    private static float ClampAngle(float angle, float min, float max) {
 
         if (angle < -360f) { angle += 360f; }
-        if (angle > 360f) { angle -= 360f; }
+        else if (angle > 360f) { angle -= 360f; }
 
         return Mathf.Clamp(angle, min, max);
     }
