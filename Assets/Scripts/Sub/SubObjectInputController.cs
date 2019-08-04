@@ -38,12 +38,7 @@ public class SubObjectInputController : MonoBehaviour {
     }
 
     private void CheckInput(KeyCode key, ref bool movement) {
-        if (Input.GetKeyDown(key)) {
-            movement = true;
-        }
-        else if (Input.GetKeyUp(key)) {
-            movement = false;
-        }
+        movement = Input.GetKey(key);
     }
 
     private void FixedUpdate() {

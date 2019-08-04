@@ -4,98 +4,39 @@ using UnityEngine;
 
 public class RigidbodyManager : MonoBehaviour {
 
-    /*
-     * This class is the authority on all changes to the objects Rigidbody component
-     * This is because in order to have accurate readings (especially force related ones),
-     * this class needs to receive all inputs in order to calculate the various fields and
-     * Unity does not have a sufficient method for viewing the Rigidbody component in complete depth.
-     * 
-     * Therefore, any script that calls a rigidbody function should call it from this class.
-     * 
-     * Acceleration
-     *   Vector3
-     *      X: m/s^2 
-     *      Y: m/s^2 
-     *      Z: m/s^2
-     * Velocity
-     *   Vector3
-     *      X: m/s
-     *      Y: m/s 
-     *      Z: m/s
-     * Position
-     *   Vector3
-     *      X: m
-     *      Y: m 
-     *      Z: m
-     * 
-     * Angular acceleration
-     *   Vector3
-     *      X: rad/s^2 
-     *      Y: rad/s^2 
-     *      Z: rad/s^2
-     * Angular velocity
-     *   Vector3
-     *      X: rad/s
-     *      Y: rad/s 
-     *      Z: rad/s
-     * Rotation
-     *   Vector3
-     *      X: rad
-     *      Y: rad 
-     *      Z: rad
-     * 
-     * Displacement
-     *   Vector3
-     *   Difference of the object's starting position from its current position
-     *      X: m
-     *      Y: m 
-     *      Z: m
-     * Distance
-     *   Vector3
-     *   Total meters travelled by the object since t=0
-     *      m
-     * Depth
-     *   float
-     *   Distance the object is below the water line
-     *      m
-     *      
-     *      
-     * Time Elapsed
-     *   float
-     *   Total time that has passed since t=0
-     * 
-     */
-    
+    // ============================================================
+    // Game object references
+
+    [SerializeField] private GameObject waterVolume = null;
 
     // ============================================================
-    // Rigidbody related fields and properties
+    // Rigidbody properties
+
     private Rigidbody rb = null;
 
-    [SerializeField] private float mass = 1f;
-    [SerializeField] private float drag = 1f;
-    [SerializeField] private float angularDrag = 1f;
-    [SerializeField] private bool useGravity = false;
-
-    public float Mass { get => mass; set => mass = value; }
-    public float Drag { get => drag; set => drag = value; }
-    public float AngularDrag { get => angularDrag; set => angularDrag = value; }
-    public bool UseGravity { get => useGravity; set => useGravity = value; }
+    public float Mass = 1f;
+    public float Drag = 1f;
+    public float AngularDrag = 1f;
+    public bool UseGravity = false;
 
     // ============================================================
-    // Information related
-    private Vector3 acceleration { get; }
-    private Vector3 velocity { get; }
-    private Vector3 position { get; }
+    // Measurements
 
-    private Vector3 angularAcceleration { get; }
-    private Vector3 angularVelocity { get; }
-    private Vector3 rotation { get; }
+    public Vector3 Acceleration { get; private set; } = Vector3.zero;
+    public Vector3 Velocity { get; private set; } = Vector3.zero;
+    public Vector3 Position { get; private set; } = Vector3.zero;
 
-    private Vector3 displacement { get; }
-    private float distance { get; }
-    private float depth { get; }
+    public Vector3 AngularAcceleration { get; private set; } = Vector3.zero;
+    public Vector3 AngularVelocity { get; private set; } = Vector3.zero;
+    public Vector3 Rotation { get; private set; } = Vector3.zero;
 
-    private float timeElapsed { get; }
+    public Vector3 Displacement { get; private set; } = Vector3.zero;
+    public float Distance { get; private set; } = 0f;
+    public float Depth { get; private set; } = 0f;
+
+    public float TimeElapsed { get; private set; } = 0f;
+
+    private Vector3 initialPosition = Vector3.zero;
 
     // ============================================================
     // Public methods
@@ -106,7 +47,6 @@ public class RigidbodyManager : MonoBehaviour {
 
     public void AddRelativeTorque(Vector3 torque) {
         rb.AddRelativeTorque(torque, ForceMode.Force);
-
     }
 
     // ============================================================
@@ -117,15 +57,42 @@ public class RigidbodyManager : MonoBehaviour {
             Debug.LogError("Remove Rigidbody component from " + gameObject.ToString());
         }
 
-        AddAndSetRigidbody();
+        rb = gameObject.AddComponent<Rigidbody>();
+        SetRigidbody();
 
+        Position = rb.position;
+        initialPosition = rb.position;
     }
 
-    private void AddAndSetRigidbody() {
-        rb = gameObject.AddComponent<Rigidbody>();
-        rb.mass = mass;
-        rb.drag = drag;
-        rb.angularDrag = angularDrag;
-        rb.useGravity = useGravity;
+    private void Update() {
+        SetRigidbody();
+    }
+
+    private void FixedUpdate() {
+        UpdateFields();
+    }
+
+    private void SetRigidbody() {
+        rb.mass = Mass;
+        rb.drag = Drag;
+        rb.angularDrag = AngularDrag;
+        rb.useGravity = UseGravity;
+    }
+
+    private void UpdateFields() {
+        Distance += (rb.position - Position).magnitude;
+
+        Acceleration = (rb.velocity - Velocity) / Time.fixedDeltaTime;
+        Velocity = rb.velocity;
+        Position = rb.position;
+
+        AngularAcceleration = (rb.angularVelocity - AngularVelocity) / Time.fixedDeltaTime;
+        AngularVelocity = rb.angularVelocity;
+        Rotation = rb.rotation.eulerAngles;
+
+        Displacement = rb.position - initialPosition;
+        Depth = rb.position.y - (waterVolume.transform.position.y + waterVolume.transform.localScale.y / 2f);
+
+        TimeElapsed = Time.time;
     }
 }
