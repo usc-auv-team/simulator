@@ -15,9 +15,7 @@ public class RigidbodyManager : MonoBehaviour {
     private Rigidbody rb = null;
 
     public float Mass = 1f;
-    public float Drag = 1f;
     public float AngularDrag = 1f;
-    public bool UseGravity = false;
 
     // ============================================================
     // Measurements
@@ -36,21 +34,37 @@ public class RigidbodyManager : MonoBehaviour {
 
     public float TimeElapsed { get; private set; } = 0f;
 
+    // ============================================================
+    // Private fields
+
+    [SerializeField] private float waterDrag = 1f;
+    [SerializeField] private float airDrag = 0.05f;
+    [SerializeField] [Range(0.8f, 1.2f)] private float buoyancy = 1f;
+
     private Vector3 initialPosition = Vector3.zero;
+
+    private float subTopPoint = 0f;
+    private float subMidPoint = 0f;
+    private float subBotPoint = 0f;
+    private float waterTopPoint = 0f;
 
     // ============================================================
     // Public methods
 
     public void AddRelativeForce(Vector3 force) {
-        rb.AddRelativeForce(force, ForceMode.Force);
+        if (subTopPoint < waterTopPoint) {
+            rb.AddRelativeForce(force, ForceMode.Force);
+        }
     }
 
     public void AddRelativeTorque(Vector3 torque) {
-        rb.AddRelativeTorque(torque, ForceMode.Force);
+        if (subTopPoint < waterTopPoint) {
+            rb.AddRelativeTorque(torque, ForceMode.Force);
+        }
     }
 
     // ============================================================
-    // Private methods
+    // MonoBehavior methods
 
     private void Start() {
         if (GetComponent<Rigidbody>()) {
@@ -58,28 +72,34 @@ public class RigidbodyManager : MonoBehaviour {
         }
 
         rb = gameObject.AddComponent<Rigidbody>();
-        SetRigidbody();
+        rb.mass = Mass;
+        rb.drag = 0f;
+        rb.angularDrag = AngularDrag;
+        rb.useGravity = false;
+
+        UpdateFields();
 
         Position = rb.position;
         initialPosition = rb.position;
     }
 
-    private void Update() {
-        SetRigidbody();
-    }
-
     private void FixedUpdate() {
         UpdateFields();
+        UpdateProperties();
+        ApplyExternalForces();
     }
 
-    private void SetRigidbody() {
-        rb.mass = Mass;
-        rb.drag = Drag;
-        rb.angularDrag = AngularDrag;
-        rb.useGravity = UseGravity;
-    }
+    // ============================================================
+    // Methods
 
     private void UpdateFields() {
+        subTopPoint = rb.position.y + rb.transform.localScale.y / 2f;
+        subMidPoint = rb.position.y;
+        subBotPoint = rb.position.y - rb.transform.localScale.y / 2f;
+        waterTopPoint = waterVolume.transform.position.y + waterVolume.transform.localScale.y / 2f;
+    }
+
+    private void UpdateProperties() {
         Distance += (rb.position - Position).magnitude;
 
         Acceleration = (rb.velocity - Velocity) / Time.fixedDeltaTime;
@@ -91,8 +111,32 @@ public class RigidbodyManager : MonoBehaviour {
         Rotation = rb.rotation.eulerAngles;
 
         Displacement = rb.position - initialPosition;
-        Depth = rb.position.y - (waterVolume.transform.position.y + waterVolume.transform.localScale.y / 2f);
+        Depth = subMidPoint - waterTopPoint;
 
         TimeElapsed = Time.time;
+    }
+
+    private void ApplyExternalForces() {
+
+        rb.AddForce(Physics.gravity, ForceMode.Acceleration);
+        rb.AddForce(CalculateBuoyancy(), ForceMode.Acceleration);
+
+        ApplyDrag();
+    }
+
+    private Vector3 CalculateBuoyancy() {
+        return -Physics.gravity * PercentSubmerged() * buoyancy;
+    }
+
+    private float PercentSubmerged() {
+        return Mathf.Clamp01((waterTopPoint - subBotPoint) / (subTopPoint - subBotPoint));
+    }
+
+    private void ApplyDrag() {
+        float drag = Mathf.Lerp(airDrag, waterDrag, PercentSubmerged());
+        float dragForceMagnitude = rb.velocity.sqrMagnitude * drag;
+        Vector3 dragForce = -rb.velocity.normalized * dragForceMagnitude;
+
+        rb.AddForce(dragForce);
     }
 }

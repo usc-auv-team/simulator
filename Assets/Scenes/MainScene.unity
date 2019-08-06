@@ -2603,7 +2603,7 @@ PrefabInstance:
     - target: {fileID: 7198158674963895146, guid: 207ee1d6d9088b2458a086eef91d3f26,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 3.38
+      value: 13.56
       objectReference: {fileID: 0}
     - target: {fileID: 7198158674963895146, guid: 207ee1d6d9088b2458a086eef91d3f26,
         type: 3}
@@ -2660,5 +2660,35 @@ PrefabInstance:
       propertyPath: waterVolume
       value: 
       objectReference: {fileID: 1631083267}
+    - target: {fileID: 9080908175569350929, guid: 207ee1d6d9088b2458a086eef91d3f26,
+        type: 3}
+      propertyPath: UseGravity
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 9080908175569350929, guid: 207ee1d6d9088b2458a086eef91d3f26,
+        type: 3}
+      propertyPath: buoyancy
+      value: 0.9
+      objectReference: {fileID: 0}
+    - target: {fileID: 7198158674963895147, guid: 207ee1d6d9088b2458a086eef91d3f26,
+        type: 3}
+      propertyPath: upForce
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7198158674963895147, guid: 207ee1d6d9088b2458a086eef91d3f26,
+        type: 3}
+      propertyPath: downForce
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7198158674963895147, guid: 207ee1d6d9088b2458a086eef91d3f26,
+        type: 3}
+      propertyPath: forwardForce
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7198158674963895147, guid: 207ee1d6d9088b2458a086eef91d3f26,
+        type: 3}
+      propertyPath: backwardForce
+      value: 5
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 207ee1d6d9088b2458a086eef91d3f26, type: 3}
