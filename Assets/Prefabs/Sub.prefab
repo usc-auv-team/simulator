@@ -2306,12 +2306,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1fb0634f5882d549af65bba8a745806, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cam: {fileID: 7198158674812089819}
+  camObject: {fileID: 7198158674812089819}
+  sub: {fileID: 7198158674963895061}
+  debug: 1
   xSpeed: 100
   ySpeed: 100
-  yMinLimit: -90
-  yMaxLimit: 90
+  pitchMinLimit: -90
+  pitchMaxLimit: 90
   smoothTime: 50
   zoomSpeed: 3
   zoomMin: -1
   zoomMax: -10
+  incrementDistance: 0.05
+  incrementMaxSteps: 100
