@@ -1573,9 +1573,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   waterVolume: {fileID: 0}
   Mass: 1
-  Drag: 0
   AngularDrag: 1
-  UseGravity: 0
+  waterDrag: 1
+  airDrag: 0.05
+  buoyancy: 1
 --- !u!114 &718671338
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2270,7 +2271,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7198158675269726092}
-  - component: {fileID: 7198158675269726082}
+  - component: {fileID: 8531748571918657111}
   m_Layer: 0
   m_Name: CameraPivot
   m_TagString: Untagged
@@ -2293,7 +2294,7 @@ Transform:
   m_Father: {fileID: 7198158674963895146}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &7198158675269726082
+--- !u!114 &8531748571918657111
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2302,10 +2303,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 7198158675269726095}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cb89a0bd8fe037943b317c25bbfc3d10, type: 3}
+  m_Script: {fileID: 11500000, guid: c1fb0634f5882d549af65bba8a745806, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cameraTarget: {fileID: 7198158674812089822}
+  cam: {fileID: 7198158674812089819}
   xSpeed: 100
   ySpeed: 100
   yMinLimit: -90
