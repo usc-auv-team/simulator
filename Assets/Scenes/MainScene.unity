@@ -1669,12 +1669,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1183651719}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!1 &1220187218 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 7198158674963895061, guid: 207ee1d6d9088b2458a086eef91d3f26,
-    type: 3}
-  m_PrefabInstance: {fileID: 7198158674667968682}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1286603519
 GameObject:
   m_ObjectHideFlags: 0
@@ -1847,38 +1841,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1377863365}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!20 &1380175522 stripped
-Camera:
-  m_CorrespondingSourceObject: {fileID: 7198158674812089817, guid: 207ee1d6d9088b2458a086eef91d3f26,
-    type: 3}
-  m_PrefabInstance: {fileID: 7198158674667968682}
-  m_PrefabAsset: {fileID: 0}
---- !u!1 &1470377178 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 7198158675269726095, guid: 207ee1d6d9088b2458a086eef91d3f26,
-    type: 3}
-  m_PrefabInstance: {fileID: 7198158674667968682}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1470377181
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1470377178}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1222f2918c2af3a47946d9c67108f406, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  sub: {fileID: 1220187218}
-  cam: {fileID: 1380175522}
-  layerMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  debug: 1
-  incrementDistance: 0.05
-  incrementMaxSteps: 50
 --- !u!1 &1631083267
 GameObject:
   m_ObjectHideFlags: 0

@@ -49,13 +49,12 @@ public class CameraController : MonoBehaviour {
         }
 
         yaw += velocityHorizontal;
+
         pitch -= velocityVertical;
         pitch = ClampAngle(pitch, pitchMinLimit, pitchMaxLimit);
-        Quaternion fromRotation = Quaternion.Euler(transform.rotation.eulerAngles.x, transform.rotation.eulerAngles.y, 0);
-        Quaternion toRotation = Quaternion.Euler(pitch, yaw, 0);
-        Quaternion rotation = toRotation;
+        
+        transform.rotation = Quaternion.Euler(pitch, yaw, 0);
 
-        transform.rotation = rotation;
         velocityHorizontal = Mathf.Lerp(velocityHorizontal, 0, Time.deltaTime * smoothTime);
         velocityVertical = Mathf.Lerp(velocityVertical, 0, Time.deltaTime * smoothTime);
     }
