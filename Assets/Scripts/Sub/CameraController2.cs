@@ -4,13 +4,24 @@ using UnityEngine;
 
 public class CameraController2 : MonoBehaviour {
 
-    // Game Object references
-    [SerializeField] private GameObject cameraObject = null;
+    // ******************************************************
+    // Child camera components
 
+    private class CameraComponents {
+        public Transform transform = null;
+        public Camera camera = null;
+    }
+
+    private CameraComponents camReference = new CameraComponents();
+
+    // ******************************************************
     // QoL Fields
+
     [SerializeField] private bool debug = false;
 
+    // ******************************************************
     // Fields related to Orbiting
+
     [SerializeField] private float xSpeed = 100f;
     [SerializeField] private float ySpeed = 100.0f;
     private float pitchMinLimit = -89f;
@@ -21,11 +32,16 @@ public class CameraController2 : MonoBehaviour {
     private float velocityHorizontal = 0f;
     private float velocityVertical = 0f;
 
+    // ******************************************************
     // Fields related to Zooming
+
     [SerializeField] private float zoomSpeed = 3.0f;
     private float scrollDelta = 0f;
     [SerializeField] private float minimumDistance = 1f;
     [SerializeField] private float maximumDistance = 10f;
+
+    // ******************************************************
+    // Fields related to the (ghost) camera transform
 
     private class MiniTransform {
         public Vector3 pos = Vector3.zero;
@@ -36,10 +52,16 @@ public class CameraController2 : MonoBehaviour {
 
     private float distance = 0f;
 
+    // ******************************************************
+    // Monobehavior Methods
+
     private void Start() {
+        camReference.transform = GetComponentsInChildren<Transform>()[1];
+        camReference.camera = GetComponentInChildren<Camera>();
+
         cam = new MiniTransform {
-            pos = cameraObject.transform.position,
-            rot = cameraObject.transform.rotation
+            pos = camReference.transform.position,
+            rot = camReference.transform.rotation
         };
 
         yaw = cam.rot.eulerAngles.y;
@@ -49,10 +71,13 @@ public class CameraController2 : MonoBehaviour {
 
     private void LateUpdate() {
         ListenForInput();
-        Orbit();
         Zoom();
-        UpdateCamera();
+        Orbit();
+        UpdateCameraReference();
     }
+
+    // ******************************************************
+    // Private Methods
 
     // Check for input and update any related fields
     private void ListenForInput() {
@@ -96,6 +121,14 @@ public class CameraController2 : MonoBehaviour {
 
     }
 
+    // Moves the ghost camera closer/further by changing the distance
+    private void Zoom() {
+        distance -= scrollDelta;
+        distance = Mathf.Clamp(distance, minimumDistance, maximumDistance);
+    }
+
+    // Orbit the ghost camera around the pivot by calculating
+    // its position and rotation
     private void Orbit() {
         
         yaw -= velocityHorizontal;
@@ -122,16 +155,14 @@ public class CameraController2 : MonoBehaviour {
 
     }
 
-    private void Zoom() {
-        distance -= scrollDelta;
-        distance = Mathf.Clamp(distance, minimumDistance, maximumDistance);
+    private void UpdateCameraReference() {
+        camReference.transform.SetPositionAndRotation(cam.pos, cam.rot);
     }
 
-    private void UpdateCamera() {
-        cameraObject.transform.SetPositionAndRotation(cam.pos, cam.rot);
-    }
-    
-    // Keeps given angle with range [-360, 360] then between [min, max]
+    // ******************************************************
+    // Private Static Methods
+
+    // Keeps given angle with range (-360, 360) then between [min, max]
     private static float ClampAngle(float angle, float min, float max) { 
         while (angle < -360f) { angle += 360f; }
         while (angle > 360f) { angle -= 360f; }
