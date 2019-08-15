@@ -37,7 +37,7 @@ public class CameraController2 : MonoBehaviour {
 
     [SerializeField] private float zoomSpeed = 3.0f;
     private float scrollDelta = 0f;
-    [SerializeField] private float minimumDistance = 1f;
+    [SerializeField] private float minimumDistance = 0.7f;
     [SerializeField] private float maximumDistance = 10f;
 
     // ******************************************************
@@ -97,6 +97,8 @@ public class CameraController2 : MonoBehaviour {
 
         if (debug) { DrawKeyCameraPoints(CalculateKeyCameraPoints(cam.pos)); }
 
+        FixCameraCollision();
+
         UpdateCameraReference();
     }
 
@@ -148,7 +150,6 @@ public class CameraController2 : MonoBehaviour {
     // Move the ghost camera closer/further by changing the distance
     private void Zoom() {
         distance -= scrollDelta;
-        distance = Mathf.Clamp(distance, minimumDistance, maximumDistance);
     }
 
     // Orbit the ghost camera around the pivot
@@ -176,6 +177,13 @@ public class CameraController2 : MonoBehaviour {
         velocityHorizontal = 0f;
         velocityVertical = 0f;
 
+    }
+
+    private void FixCameraCollision() {
+        OcclusionData occ = GetOcclusion(cam.pos);
+        if (occ.isOccluded) {
+            distance = CalculateBetterDistance(occ.distance);
+        }
     }
 
     // Check if a given camera position is being occluded using linecasts
@@ -243,6 +251,29 @@ public class CameraController2 : MonoBehaviour {
         return points;
     }
 
+    // When occluded, find a closer distance to not be
+    // eventually returning the parameter distance that was always safe
+    private float CalculateBetterDistance(float desiredDistance) {
+
+        // copy the starting distance
+        float nudgedDistance = Vector3.Distance(transform.position, cam.pos);
+
+        for (int i = 0; i < incrementMaxSteps; i++) {
+
+            // nudge it closer to the origin
+            nudgedDistance -= incrementDistance;
+            Vector3 nudged = Vector3.MoveTowards(transform.position, cam.pos, nudgedDistance);
+
+            if (!GetOcclusion(nudged).isOccluded) {
+                return nudgedDistance;
+            }
+        }
+
+        // if nudge was always occluded, give up
+        return desiredDistance;
+
+    }
+
     // Debug tool; draw the visualization of the KeyCameraPoints
     private void DrawKeyCameraPoints(KeyCameraPoints points) {
         Debug.DrawLine(transform.position, points.Back, Color.blue);
@@ -266,6 +297,8 @@ public class CameraController2 : MonoBehaviour {
 
     // Update the real camera with the ghost camera
     private void UpdateCameraReference() {
+        distance = Mathf.Clamp(distance, minimumDistance, maximumDistance);
+        cam.pos = Vector3.MoveTowards(transform.position, cam.pos, distance);
         camReference.transform.SetPositionAndRotation(cam.pos, cam.rot);
     }
 
