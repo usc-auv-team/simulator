@@ -53,6 +53,26 @@ public class CameraController2 : MonoBehaviour {
     private float distance = 0f;
 
     // ******************************************************
+    // Fields related to Camera Collision
+
+    [SerializeField] private float incrementDistance = 0.05f;
+    [SerializeField] private int incrementMaxSteps = 50;
+
+    private class KeyCameraPoints {
+        public Vector3 TopLeft;
+        public Vector3 TopRight;
+        public Vector3 BotLeft;
+        public Vector3 BotRight;
+        public Vector3 Back;
+    }
+
+    private class OcclusionData {
+        public bool isOccluded = false;
+        public float distance = float.MaxValue;
+    }
+
+
+    // ******************************************************
     // Monobehavior Methods
 
     private void Start() {
@@ -71,8 +91,12 @@ public class CameraController2 : MonoBehaviour {
 
     private void LateUpdate() {
         ListenForInput();
+
         Zoom();
         Orbit();
+
+        if (debug) { DrawKeyCameraPoints(CalculateKeyCameraPoints(cam.pos)); }
+
         UpdateCameraReference();
     }
 
@@ -121,14 +145,13 @@ public class CameraController2 : MonoBehaviour {
 
     }
 
-    // Moves the ghost camera closer/further by changing the distance
+    // Move the ghost camera closer/further by changing the distance
     private void Zoom() {
         distance -= scrollDelta;
         distance = Mathf.Clamp(distance, minimumDistance, maximumDistance);
     }
 
-    // Orbit the ghost camera around the pivot by calculating
-    // its position and rotation
+    // Orbit the ghost camera around the pivot
     private void Orbit() {
         
         yaw -= velocityHorizontal;
@@ -157,6 +180,62 @@ public class CameraController2 : MonoBehaviour {
 
     private void UpdateCameraReference() {
         camReference.transform.SetPositionAndRotation(cam.pos, cam.rot);
+    }
+
+    private KeyCameraPoints CalculateKeyCameraPoints(Vector3 camPoint) {
+
+        KeyCameraPoints points = new KeyCameraPoints();
+
+        // these are technically half the height and width of the plane, but doesn't matter
+        float distance = camReference.camera.nearClipPlane;
+        float height = distance * Mathf.Tan(camReference.camera.fieldOfView * Mathf.Deg2Rad * 0.5f);
+        float width = height * camReference.camera.aspect;
+
+        Vector3 forward = cam.rot * Vector3.forward;
+        Vector3 right = cam.rot * Vector3.right;
+        Vector3 up = cam.rot * Vector3.up;
+
+        // update the vertices that make the camera collision pyramid
+
+        points.BotRight = camPoint + right * width;
+        points.BotRight -= up * height;
+        points.BotRight += forward * distance;
+
+        points.BotLeft = camPoint - right * width;
+        points.BotLeft -= up * height;
+        points.BotLeft += forward * distance;
+
+        points.TopRight = camPoint + right * width;
+        points.TopRight += up * height;
+        points.TopRight += forward * distance;
+
+        points.TopLeft = camPoint - right * width;
+        points.TopLeft += up * height;
+        points.TopLeft += forward * distance;
+
+        points.Back = camPoint + forward * -distance;
+
+        return points;
+    }
+
+    private void DrawKeyCameraPoints(KeyCameraPoints points) {
+        Debug.DrawLine(transform.position, points.Back, Color.blue);
+
+        Debug.DrawLine(transform.position, points.TopLeft, Color.red);
+        Debug.DrawLine(transform.position, points.TopRight, Color.red);
+        Debug.DrawLine(transform.position, points.BotLeft, Color.red);
+        Debug.DrawLine(transform.position, points.BotRight, Color.red);
+
+        Debug.DrawLine(points.TopLeft, points.TopRight, Color.red);
+        Debug.DrawLine(points.TopRight, points.BotRight, Color.red);
+        Debug.DrawLine(points.BotRight, points.BotLeft, Color.red);
+        Debug.DrawLine(points.BotLeft, points.TopLeft, Color.red);
+
+        Debug.DrawLine(points.TopLeft, points.Back, Color.red);
+        Debug.DrawLine(points.TopRight, points.Back, Color.red);
+        Debug.DrawLine(points.BotRight, points.Back, Color.red);
+        Debug.DrawLine(points.BotLeft, points.Back, Color.red);
+
     }
 
     // ******************************************************
