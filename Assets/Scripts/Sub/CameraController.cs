@@ -4,46 +4,61 @@ using UnityEngine;
 
 public class CameraController : MonoBehaviour {
 
-    // Game Object References
-    [SerializeField] private GameObject camObject = null;
-    [SerializeField] private GameObject sub = null;
+    // ******************************************************
+    // Child camera components
 
-    // QoL Properties
+    private class CameraComponents {
+        public Transform transform = null;
+        public Camera camera = null;
+    }
+
+    private CameraComponents camReference = new CameraComponents();
+
+    // ******************************************************
+    // QoL Fields
+
     [SerializeField] private bool debug = false;
 
     // ******************************************************
+    // Fields related to Orbiting
 
-    // Camera Control Properties
     [SerializeField] private float xSpeed = 100f;
     [SerializeField] private float ySpeed = 100.0f;
-    [SerializeField] private float pitchMinLimit = -90f;
-    [SerializeField] private float pitchMaxLimit = 90f;
-    [SerializeField] private float smoothTime = 50f;
+    private float pitchMinLimit = -89f;
+    private float pitchMaxLimit = 89f;
+    [SerializeField] private float smoothTime = 25f;
+    private float yaw = 0f;
+    private float pitch = 0f;
+    private float velocityHorizontal = 0f;
+    private float velocityVertical = 0f;
+
+    // ******************************************************
+    // Fields related to Zooming
 
     [SerializeField] private float zoomSpeed = 3.0f;
-    [SerializeField] private float zoomMin = -1.0f;
-    [SerializeField] private float zoomMax = -10.0f;
-   
-    // Camera Control Fields
-    private Vector3 prevPos = Vector3.zero;
+    private float scrollDelta = 0f;
+    [SerializeField] private float minimumDistance = 0.7f;
+    [SerializeField] private float maximumDistance = 10f;
 
-    private float yaw = 0.0f;
-    private float pitch = 0.0f;
-    private float velocityHorizontal = 0.0f;
-    private float velocityVertical = 0.0f;
-    
     // ******************************************************
+    // Fields related to the (ghost) camera transform
 
-    // Camera Collision Properteis
+    private class MiniTransform {
+        public Vector3 pos = Vector3.zero;
+        public Quaternion rot = Quaternion.identity;
+    }
+
+    private MiniTransform cam;
+
+    private float distance = 0f;
+
+    // ******************************************************
+    // Fields related to Camera Collision
+
     [SerializeField] private float incrementDistance = 0.05f;
-    [SerializeField] private int incrementMaxSteps = 100;
+    [SerializeField] private int incrementMaxSteps = 50;
 
-    // Camera Collision Fields
-    private new Camera camera = null;
-    private float minimumDistance = 1f;
-    private float currDistance = -1f;
-
-    private struct KeyCameraPoints {
+    private class KeyCameraPoints {
         public Vector3 TopLeft;
         public Vector3 TopRight;
         public Vector3 BotLeft;
@@ -56,158 +71,140 @@ public class CameraController : MonoBehaviour {
         public float distance = float.MaxValue;
     }
 
-    private Vector3 subPos = Vector3.zero;
-    private Vector3 camPos = Vector3.zero;
 
     // ******************************************************
+    // Monobehavior Methods
 
     private void Start() {
-        yaw = transform.eulerAngles.y;
-        pitch = transform.eulerAngles.x;
-        camera = camObject.GetComponent<Camera>();
+        camReference.transform = GetComponentsInChildren<Transform>()[1];
+        camReference.camera = GetComponentInChildren<Camera>();
+
+        cam = new MiniTransform {
+            pos = camReference.transform.position,
+            rot = camReference.transform.rotation
+        };
+
+        yaw = cam.rot.eulerAngles.y;
+        pitch = cam.rot.eulerAngles.x;
+        distance = Vector3.Distance(transform.position, cam.pos);
     }
 
     private void LateUpdate() {
+        ListenForInput();
 
-        subPos = sub.transform.position;
-        camPos = camObject.transform.position;
+        Zoom();
+        Orbit();
 
-        if (debug) { DrawKeyPoints(CalculateKeyCameraPoints(camPos)); }
+        if (debug) { DrawKeyCameraPoints(CalculateKeyCameraPoints(cam.pos)); }
 
+        FixCameraCollision();
 
-        ZoomCamera();
-        MoveCamera();
-
-        CheckToAdjustCamera();
-
-        // Check if the updated position is different from the previous position
-        camObject.transform.hasChanged = !(camPos == camObject.transform.position);
+        UpdateCameraReference();
     }
 
-    // If right mouse button is held down, rotate the object so the camera follows it
-    private void MoveCamera() {
+    // ******************************************************
+    // Private Methods
+
+    // Check for input and update any related fields
+    private void ListenForInput() {
 
         if (Input.GetMouseButton(1)) {
             velocityHorizontal += xSpeed * Input.GetAxis("Mouse X") * 0.02f;
             velocityVertical += ySpeed * Input.GetAxis("Mouse Y") * 0.02f;
         }
 
-        yaw += velocityHorizontal;
+        if (Input.GetKey(KeyCode.LeftArrow)) {
+            velocityHorizontal = 1f;
+        }
+        else if (Input.GetKeyUp(KeyCode.LeftArrow)) {
+            velocityHorizontal = 0f;
+        }
 
-        pitch -= velocityVertical;
-        pitch = ClampAngle(pitch, pitchMinLimit, pitchMaxLimit);
-        
-        transform.rotation = Quaternion.Euler(pitch, yaw, 0);
+        if (Input.GetKey(KeyCode.RightArrow)) {
+            velocityHorizontal = -1f;
+        }
+        else if (Input.GetKeyUp(KeyCode.RightArrow)) {
+            velocityHorizontal = 0f;
+        }
 
-        velocityHorizontal = Mathf.Lerp(velocityHorizontal, 0, Time.deltaTime * smoothTime);
-        velocityVertical = Mathf.Lerp(velocityVertical, 0, Time.deltaTime * smoothTime);
-    }
+        if (Input.GetKey(KeyCode.DownArrow)) {
+            velocityVertical = 1f;
+        }
+        else if (Input.GetKeyUp(KeyCode.DownArrow)) {
+            velocityVertical = 0f;
+        }
 
-    // If right mouse button is held down, move the camera closer or farther
-    private void ZoomCamera() {
+        if (Input.GetKey(KeyCode.UpArrow)) {
+            velocityVertical = -1f;
+        }
+        else if (Input.GetKeyUp(KeyCode.UpArrow)) {
+            velocityVertical = 0f;
+        }
 
         if (Input.GetMouseButton(1)) {
+            scrollDelta = Input.GetAxisRaw("Mouse ScrollWheel") * zoomSpeed;
+        }
 
-            Vector3 newCameraPosition = camObject.transform.localPosition;
+    }
 
-            float scrollDelta = Input.GetAxisRaw("Mouse ScrollWheel") * zoomSpeed;
-            newCameraPosition.z += scrollDelta;
+    // Move the ghost camera closer/further by changing the distance
+    private void Zoom() {
+        distance -= scrollDelta;
+    }
 
-            if (newCameraPosition.z > zoomMin) { newCameraPosition.z = zoomMin; }
-            else if (newCameraPosition.z < zoomMax) { newCameraPosition.z = zoomMax; }
+    // Orbit the ghost camera around the pivot
+    private void Orbit() {
+        
+        yaw -= velocityHorizontal;
+        pitch -= velocityVertical;
 
-            camObject.transform.localPosition = newCameraPosition;
+        yaw = ClampAngle(yaw, -360f, 360f);
+        pitch = ClampAngle(pitch, pitchMinLimit, pitchMaxLimit);
+
+        float theta = (yaw - 90f) * Mathf.Deg2Rad;
+        float phi = pitch * Mathf.Deg2Rad;
+        
+        cam.pos = transform.position + new Vector3(
+            distance * Mathf.Cos(phi) * Mathf.Cos(theta),
+            distance * Mathf.Sin(phi),
+            distance * Mathf.Cos(phi) * Mathf.Sin(theta)
+        );
+
+        Vector3 forward = (transform.position - cam.pos).normalized;
+
+        cam.rot = Quaternion.LookRotation(forward);
+
+        velocityHorizontal = 0f;
+        velocityVertical = 0f;
+
+    }
+
+    private void FixCameraCollision() {
+        OcclusionData occ = GetOcclusion(cam.pos);
+        if (occ.isOccluded) {
+            distance = CalculateBetterDistance(occ.distance);
         }
     }
 
-    // Keeps given angle with range [-360, 360] then between [min, max]
-    private static float ClampAngle(float angle, float min, float max) {
+    // Check if a given camera position is being occluded using linecasts
+    private OcclusionData GetOcclusion(Vector3 camPos) {
 
-        if (angle < -360f) { angle += 360f; }
-        else if (angle > 360f) { angle -= 360f; }
-
-        return Mathf.Clamp(angle, min, max);
-    }
-
-    private void CheckToAdjustCamera() {
-
-        float currDistance = Vector3.Distance(subPos, camPos);
-
-        OcclusionData occ = GetOcclusion(camPos);
-
-        if (!occ.isOccluded) {
-            // if not occluded, don't do anything else
-            return;
-        }
-
-        float newDistance = CalculateBetterDistance(occ.distance);
-
-        UpdateCamera(newDistance);
-
-    }
-
-
-
-    private KeyCameraPoints CalculateKeyCameraPoints(Vector3 cameraPoint) {
-
-        KeyCameraPoints points = new KeyCameraPoints();
-
-        // these are technically half the height and width of the plane, but doesn't matter
-        float distance = camera.nearClipPlane;
-        float height = distance * Mathf.Tan(camera.fieldOfView * Mathf.Deg2Rad * 0.5f);
-        float width = height * camera.aspect;
-
-        // update the vertices that make the camera collision pyramid
-
-        points.BotRight = cameraPoint + transform.right * width;
-        points.BotRight -= transform.up * height;
-        points.BotRight += transform.forward * distance;
-
-        points.BotLeft = cameraPoint - transform.right * width;
-        points.BotLeft -= transform.up * height;
-        points.BotLeft += transform.forward * distance;
-
-        points.TopRight = cameraPoint + transform.right * width;
-        points.TopRight += transform.up * height;
-        points.TopRight += transform.forward * distance;
-
-        points.TopLeft = cameraPoint - transform.right * width;
-        points.TopLeft += transform.up * height;
-        points.TopLeft += transform.forward * distance;
-
-        points.Back = cameraPoint + transform.forward * -distance;
-
-        return points;
-    }
-
-    private OcclusionData GetOcclusion(Vector3 cameraPos) {
-
-        KeyCameraPoints points = CalculateKeyCameraPoints(cameraPos);
-
-        RaycastHit hit;
-
+        KeyCameraPoints keyPoints = CalculateKeyCameraPoints(camPos);
         OcclusionData output = new OcclusionData();
 
-        Vector3 outerSub = Vector3.MoveTowards(subPos, camPos, minimumDistance);
+        Vector3[] arrPoints = {
+            keyPoints.TopLeft,
+            keyPoints.TopRight,
+            keyPoints.BotLeft,
+            keyPoints.BotRight,
+            keyPoints.Back
+        };
 
-        if (Physics.Linecast(outerSub, points.TopLeft, out hit) && hit.collider.tag != "Player") {
-            output.distance = (hit.distance < output.distance) ? hit.distance : output.distance;
-        }
-
-        if (Physics.Linecast(outerSub, points.TopRight, out hit) && hit.collider.tag != "Player") {
-            output.distance = (hit.distance < output.distance) ? hit.distance : output.distance;
-        }
-
-        if (Physics.Linecast(outerSub, points.BotLeft, out hit) && hit.collider.tag != "Player") {
-            output.distance = (hit.distance < output.distance) ? hit.distance : output.distance;
-        }
-
-        if (Physics.Linecast(outerSub, points.BotRight, out hit) && hit.collider.tag != "Player") {
-            output.distance = (hit.distance < output.distance) ? hit.distance : output.distance;
-        }
-
-        if (Physics.Linecast(outerSub, points.Back, out hit) && hit.collider.tag != "Player") {
-            output.distance = (hit.distance < output.distance) ? hit.distance : output.distance;
+        // for each point, if there's a raycast hit, save the smallest distance between them all
+        foreach (Vector3 point in arrPoints) {
+            if (Physics.Linecast(transform.position, point, out RaycastHit hit) && hit.collider.tag != "Player") {
+                output.distance = (hit.distance < output.distance) ? hit.distance : output.distance;
+            }
         }
 
         if (output.distance < float.MaxValue) {
@@ -215,57 +212,104 @@ public class CameraController : MonoBehaviour {
         }
 
         return output;
-
     }
 
-    private float CalculateBetterDistance(float desired) {
+    // Calculate the near clip plane points and back point from the given camera position
+    private KeyCameraPoints CalculateKeyCameraPoints(Vector3 camPos) {
 
-        float nudgedDistance = currDistance;
+        KeyCameraPoints points = new KeyCameraPoints();
+
+        // these are technically half the height and width of the plane, but doesn't matter
+        float distance = camReference.camera.nearClipPlane;
+        float height = distance * Mathf.Tan(camReference.camera.fieldOfView * Mathf.Deg2Rad * 0.5f);
+        float width = height * camReference.camera.aspect;
+
+        Vector3 forward = cam.rot * Vector3.forward;
+        Vector3 right = cam.rot * Vector3.right;
+        Vector3 up = cam.rot * Vector3.up;
+
+        // update the vertices that make the camera collision pyramid
+
+        points.BotRight = camPos + right * width;
+        points.BotRight -= up * height;
+        points.BotRight += forward * distance;
+
+        points.BotLeft = camPos - right * width;
+        points.BotLeft -= up * height;
+        points.BotLeft += forward * distance;
+
+        points.TopRight = camPos + right * width;
+        points.TopRight += up * height;
+        points.TopRight += forward * distance;
+
+        points.TopLeft = camPos - right * width;
+        points.TopLeft += up * height;
+        points.TopLeft += forward * distance;
+
+        points.Back = camPos + forward * -distance;
+
+        return points;
+    }
+
+    // When occluded, find a closer distance to not be
+    // eventually returning the parameter distance that was always safe
+    private float CalculateBetterDistance(float desiredDistance) {
+
+        // copy the starting distance
+        float nudgedDistance = Vector3.Distance(transform.position, cam.pos);
 
         for (int i = 0; i < incrementMaxSteps; i++) {
+
+            // nudge it closer to the origin
             nudgedDistance -= incrementDistance;
-            Vector3 nudged = Vector3.MoveTowards(subPos, camPos, nudgedDistance);
+            Vector3 nudged = Vector3.MoveTowards(transform.position, cam.pos, nudgedDistance);
+
             if (!GetOcclusion(nudged).isOccluded) {
-                // if nudge isn't occluded, that's best case
                 return nudgedDistance;
             }
         }
 
         // if nudge was always occluded, give up
-        return desired;
+        return desiredDistance;
 
     }
 
-    private void UpdateCamera(float desiredDistance) {
-        if (desiredDistance < minimumDistance) {
-            desiredDistance = minimumDistance;
-        }
-        camObject.transform.position = Vector3.MoveTowards(subPos, camPos, desiredDistance);
-    }
+    // Debug tool; draw the visualization of the KeyCameraPoints
+    private void DrawKeyCameraPoints(KeyCameraPoints points) {
+        Debug.DrawLine(transform.position, points.Back, Color.blue);
 
-    private void DrawKeyPoints(KeyCameraPoints points) {
-        Debug.DrawLine(subPos, points.Back, Color.blue);
-
-        Debug.DrawLine(subPos, points.TopLeft, Color.red);
-        Debug.DrawLine(subPos, points.TopRight, Color.red);
-        Debug.DrawLine(subPos, points.BotLeft, Color.red);
-        Debug.DrawLine(subPos, points.BotRight, Color.red);
+        Debug.DrawLine(transform.position, points.TopLeft, Color.red);
+        Debug.DrawLine(transform.position, points.TopRight, Color.red);
+        Debug.DrawLine(transform.position, points.BotLeft, Color.red);
+        Debug.DrawLine(transform.position, points.BotRight, Color.red);
 
         Debug.DrawLine(points.TopLeft, points.TopRight, Color.red);
         Debug.DrawLine(points.TopRight, points.BotRight, Color.red);
         Debug.DrawLine(points.BotRight, points.BotLeft, Color.red);
         Debug.DrawLine(points.BotLeft, points.TopLeft, Color.red);
 
-        Debug.DrawLine(points.TopLeft, camPos + transform.forward * -camera.nearClipPlane, Color.red);
-        Debug.DrawLine(points.TopRight, camPos + transform.forward * -camera.nearClipPlane, Color.red);
-        Debug.DrawLine(points.BotRight, camPos + transform.forward * -camera.nearClipPlane, Color.red);
-        Debug.DrawLine(points.BotLeft, camPos + transform.forward * -camera.nearClipPlane, Color.red);
+        Debug.DrawLine(points.TopLeft, points.Back, Color.red);
+        Debug.DrawLine(points.TopRight, points.Back, Color.red);
+        Debug.DrawLine(points.BotRight, points.Back, Color.red);
+        Debug.DrawLine(points.BotLeft, points.Back, Color.red);
 
     }
 
-    private float GetSign(float a) {
-        if (a < 0f) { return -1f; }
-        if (a > 0f) { return 1f; }
-        else { return 0f; }
+    // Update the real camera with the ghost camera
+    private void UpdateCameraReference() {
+        distance = Mathf.Clamp(distance, minimumDistance, maximumDistance);
+        cam.pos = Vector3.MoveTowards(transform.position, cam.pos, distance);
+        camReference.transform.SetPositionAndRotation(cam.pos, cam.rot);
     }
+
+    // ******************************************************
+    // Private Static Methods
+
+    // Keeps given angle with range (-360, 360) then between [min, max]
+    private static float ClampAngle(float angle, float min, float max) { 
+        while (angle < -360f) { angle += 360f; }
+        while (angle > 360f) { angle -= 360f; }
+        return Mathf.Clamp(angle, min, max);
+    }
+
 }
