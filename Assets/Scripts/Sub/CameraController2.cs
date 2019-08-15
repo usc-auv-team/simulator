@@ -178,11 +178,36 @@ public class CameraController2 : MonoBehaviour {
 
     }
 
-    private void UpdateCameraReference() {
-        camReference.transform.SetPositionAndRotation(cam.pos, cam.rot);
+    // Check if a given camera position is being occluded using linecasts
+    private OcclusionData GetOcclusion(Vector3 camPos) {
+
+        KeyCameraPoints keyPoints = CalculateKeyCameraPoints(camPos);
+        OcclusionData output = new OcclusionData();
+
+        Vector3[] arrPoints = {
+            keyPoints.TopLeft,
+            keyPoints.TopRight,
+            keyPoints.BotLeft,
+            keyPoints.BotRight,
+            keyPoints.Back
+        };
+
+        // for each point, if there's a raycast hit, save the smallest distance between them all
+        foreach (Vector3 point in arrPoints) {
+            if (Physics.Linecast(transform.position, point, out RaycastHit hit) && hit.collider.tag != "Player") {
+                output.distance = (hit.distance < output.distance) ? hit.distance : output.distance;
+            }
+        }
+
+        if (output.distance < float.MaxValue) {
+            output.isOccluded = true;
+        }
+
+        return output;
     }
 
-    private KeyCameraPoints CalculateKeyCameraPoints(Vector3 camPoint) {
+    // Calculate the near clip plane points and back point from the given camera position
+    private KeyCameraPoints CalculateKeyCameraPoints(Vector3 camPos) {
 
         KeyCameraPoints points = new KeyCameraPoints();
 
@@ -197,27 +222,28 @@ public class CameraController2 : MonoBehaviour {
 
         // update the vertices that make the camera collision pyramid
 
-        points.BotRight = camPoint + right * width;
+        points.BotRight = camPos + right * width;
         points.BotRight -= up * height;
         points.BotRight += forward * distance;
 
-        points.BotLeft = camPoint - right * width;
+        points.BotLeft = camPos - right * width;
         points.BotLeft -= up * height;
         points.BotLeft += forward * distance;
 
-        points.TopRight = camPoint + right * width;
+        points.TopRight = camPos + right * width;
         points.TopRight += up * height;
         points.TopRight += forward * distance;
 
-        points.TopLeft = camPoint - right * width;
+        points.TopLeft = camPos - right * width;
         points.TopLeft += up * height;
         points.TopLeft += forward * distance;
 
-        points.Back = camPoint + forward * -distance;
+        points.Back = camPos + forward * -distance;
 
         return points;
     }
 
+    // Debug tool; draw the visualization of the KeyCameraPoints
     private void DrawKeyCameraPoints(KeyCameraPoints points) {
         Debug.DrawLine(transform.position, points.Back, Color.blue);
 
@@ -236,6 +262,11 @@ public class CameraController2 : MonoBehaviour {
         Debug.DrawLine(points.BotRight, points.Back, Color.red);
         Debug.DrawLine(points.BotLeft, points.Back, Color.red);
 
+    }
+
+    // Update the real camera with the ghost camera
+    private void UpdateCameraReference() {
+        camReference.transform.SetPositionAndRotation(cam.pos, cam.rot);
     }
 
     // ******************************************************
