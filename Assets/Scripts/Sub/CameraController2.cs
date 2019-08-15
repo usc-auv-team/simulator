@@ -4,24 +4,28 @@ using UnityEngine;
 
 public class CameraController2 : MonoBehaviour {
 
+    // Game Object references
     [SerializeField] private GameObject cameraObject = null;
 
+    // QoL Fields
     [SerializeField] private bool debug = false;
 
+    // Fields related to Orbiting
     [SerializeField] private float xSpeed = 100f;
     [SerializeField] private float ySpeed = 100.0f;
     private float pitchMinLimit = -89f;
     private float pitchMaxLimit = 89f;
     [SerializeField] private float smoothTime = 25f;
-
     private float yaw = 0f;
     private float pitch = 0f;
     private float velocityHorizontal = 0f;
     private float velocityVertical = 0f;
 
+    // Fields related to Zooming
     [SerializeField] private float zoomSpeed = 3.0f;
-    [SerializeField] private float minimumDistance = -1.0f;
-    [SerializeField] private float maximumDistance = -10.0f;
+    private float scrollDelta = 0f;
+    [SerializeField] private float minimumDistance = 1f;
+    [SerializeField] private float maximumDistance = 10f;
 
     private class MiniTransform {
         public Vector3 pos = Vector3.zero;
@@ -46,33 +50,8 @@ public class CameraController2 : MonoBehaviour {
     private void LateUpdate() {
         ListenForInput();
         Orbit();
+        Zoom();
         UpdateCamera();
-    }
-
-    private void Orbit() {
-        
-        yaw -= velocityHorizontal;
-        pitch -= velocityVertical;
-
-        yaw = ClampAngle(yaw, -360f, 360f);
-        pitch = ClampAngle(pitch, pitchMinLimit, pitchMaxLimit);
-
-        float theta = (yaw - 90f) * Mathf.Deg2Rad;
-        float phi = pitch * Mathf.Deg2Rad;
-        
-        cam.pos = transform.position + new Vector3(
-            distance * Mathf.Cos(phi) * Mathf.Cos(theta),
-            distance * Mathf.Sin(phi),
-            distance * Mathf.Cos(phi) * Mathf.Sin(theta)
-        );
-
-        Vector3 forward = (transform.position - cam.pos).normalized;
-
-        cam.rot = Quaternion.LookRotation(forward);
-
-        velocityHorizontal = 0f;
-        velocityVertical = 0f;
-
     }
 
     // Check for input and update any related fields
@@ -111,6 +90,41 @@ public class CameraController2 : MonoBehaviour {
             velocityVertical = 0f;
         }
 
+        if (Input.GetMouseButton(1)) {
+            scrollDelta = Input.GetAxisRaw("Mouse ScrollWheel") * zoomSpeed;
+        }
+
+    }
+
+    private void Orbit() {
+        
+        yaw -= velocityHorizontal;
+        pitch -= velocityVertical;
+
+        yaw = ClampAngle(yaw, -360f, 360f);
+        pitch = ClampAngle(pitch, pitchMinLimit, pitchMaxLimit);
+
+        float theta = (yaw - 90f) * Mathf.Deg2Rad;
+        float phi = pitch * Mathf.Deg2Rad;
+        
+        cam.pos = transform.position + new Vector3(
+            distance * Mathf.Cos(phi) * Mathf.Cos(theta),
+            distance * Mathf.Sin(phi),
+            distance * Mathf.Cos(phi) * Mathf.Sin(theta)
+        );
+
+        Vector3 forward = (transform.position - cam.pos).normalized;
+
+        cam.rot = Quaternion.LookRotation(forward);
+
+        velocityHorizontal = 0f;
+        velocityVertical = 0f;
+
+    }
+
+    private void Zoom() {
+        distance -= scrollDelta;
+        distance = Mathf.Clamp(distance, minimumDistance, maximumDistance);
     }
 
     private void UpdateCamera() {

@@ -2312,5 +2312,5 @@ MonoBehaviour:
   ySpeed: 100
   smoothTime: 25
   zoomSpeed: 3
-  minimumDistance: -1
-  maximumDistance: -10
+  minimumDistance: 1
+  maximumDistance: 10
