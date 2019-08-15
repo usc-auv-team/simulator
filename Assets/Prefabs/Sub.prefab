@@ -2271,7 +2271,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7198158675269726092}
-  - component: {fileID: 8531748571918657111}
+  - component: {fileID: 7700171585985771134}
   m_Layer: 0
   m_Name: CameraPivot
   m_TagString: Untagged
@@ -2294,7 +2294,7 @@ Transform:
   m_Father: {fileID: 7198158674963895146}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8531748571918657111
+--- !u!114 &7700171585985771134
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2303,19 +2303,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 7198158675269726095}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c1fb0634f5882d549af65bba8a745806, type: 3}
+  m_Script: {fileID: 11500000, guid: 3cba36393668e804991ddf12cc21ff35, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  camObject: {fileID: 7198158674812089819}
-  sub: {fileID: 7198158674963895061}
-  debug: 1
+  cameraObject: {fileID: 7198158674812089819}
+  debug: 0
   xSpeed: 100
   ySpeed: 100
-  pitchMinLimit: -90
-  pitchMaxLimit: 90
-  smoothTime: 50
+  smoothTime: 25
   zoomSpeed: 3
-  zoomMin: -1
-  zoomMax: -10
-  incrementDistance: 0.05
-  incrementMaxSteps: 100
+  minimumDistance: -1
+  maximumDistance: -10
