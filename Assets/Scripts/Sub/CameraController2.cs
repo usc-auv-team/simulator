@@ -87,20 +87,11 @@ public class CameraController2 : MonoBehaviour {
 
         Vector3 forward = (transform.position - cam.transform.position).normalized;
 
-        DrawDirection(forward, Vector3.up);
-
         cam.transform.rotation = Quaternion.LookRotation(forward);
 
         velocityHorizontal = 0f;
         velocityVertical = 0f;
 
-    }
-
-    private void DrawDirection(Vector3 forward, Vector3 up) {
-        float mag = 5f;
-        Debug.DrawRay(transform.position, forward * mag, Color.blue);
-        Debug.DrawRay(transform.position, up * mag, Color.green);
-        Debug.DrawRay(transform.position, -Vector3.Cross(forward, up) * mag, Color.red);
     }
     
     // Keeps given angle with range [-360, 360] then between [min, max]
