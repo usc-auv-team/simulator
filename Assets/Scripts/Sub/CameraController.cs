@@ -72,7 +72,6 @@ public class CameraController : MonoBehaviour {
         public float distance = float.MaxValue;
     }
 
-
     // ******************************************************
     // Monobehavior Methods
 
@@ -100,6 +99,7 @@ public class CameraController : MonoBehaviour {
         if (debug) { DrawKeyCameraPoints(CalculateKeyCameraPoints(cam.pos)); }
 
         FixCameraCollision();
+        ResetOccludedDistance();
 
         UpdateCameraReference();
     }
@@ -146,7 +146,6 @@ public class CameraController : MonoBehaviour {
         if (Input.GetMouseButton(1)) {
             scrollDelta = Input.GetAxisRaw("Mouse ScrollWheel") * zoomSpeed;
         }
-
     }
 
     // Move the ghost camera closer/further by changing the distance
@@ -170,9 +169,9 @@ public class CameraController : MonoBehaviour {
 
         velocityHorizontal = 0f;
         velocityVertical = 0f;
-
     }
 
+    // Takes in the given camera information and returns a position and rotation for it
     private MiniTransform CalculateTransformation(float yaw, float pitch, float distance) {
 
         MiniTransform output = new MiniTransform();
@@ -191,16 +190,19 @@ public class CameraController : MonoBehaviour {
         return output;
     }
 
+    // Moves the camera closer if it is being occluded
+    // Then tries to move it back once its no longer occluded
     private void FixCameraCollision() {
+
         OcclusionData occ = GetOcclusion(cam.pos);
         if (occ.isOccluded) {
             if (preOccludedDistance == 0f) {
+                // if the camera has just been occluded, save its
+                // distance for eventual resetting
                 preOccludedDistance = distance;
             }
             distance = CalculateBetterDistance(occ.distance);
         }
-
-        ResetOccludedDistance();
     }
 
     // Check if a given camera position is being occluded using linecasts
@@ -288,24 +290,23 @@ public class CameraController : MonoBehaviour {
 
         // if nudge was always occluded, give up
         return desiredDistance;
-
     }
 
+    // Checks to make sure the pre occluded distance isn't being occluded,
+    // and will change the camera distance to go back to its original once it's not
     private void ResetOccludedDistance() {
 
-        if (preOccludedDistance == 0f) {
-            return;
-        }
+        if (preOccludedDistance == 0f) { return; }
 
         Vector3 prePos = CalculateTransformation(yaw, pitch, preOccludedDistance).pos;
-        DrawKeyCameraPoints(CalculateKeyCameraPoints(prePos));
+
+        if (debug) { DrawKeyCameraPoints(CalculateKeyCameraPoints(prePos)); }
 
         OcclusionData occ = GetOcclusion(prePos);
         if (!occ.isOccluded) { 
             distance = preOccludedDistance;
             preOccludedDistance = 0f;
         }
-
     }
 
     // Debug tool; draw the visualization of the KeyCameraPoints
@@ -326,7 +327,6 @@ public class CameraController : MonoBehaviour {
         Debug.DrawLine(points.TopRight, points.Back, Color.red);
         Debug.DrawLine(points.BotRight, points.Back, Color.red);
         Debug.DrawLine(points.BotLeft, points.Back, Color.red);
-
     }
 
     // Update the real camera with the ghost camera
@@ -345,5 +345,4 @@ public class CameraController : MonoBehaviour {
         while (angle > 360f) { angle -= 360f; }
         return Mathf.Clamp(angle, min, max);
     }
-
 }
