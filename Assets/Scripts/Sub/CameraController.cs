@@ -51,6 +51,7 @@ public class CameraController : MonoBehaviour {
     private MiniTransform cam;
 
     private float distance = 0f;
+    private float preOccludedDistance = 0f;
 
     // ******************************************************
     // Fields related to Camera Collision
@@ -86,6 +87,7 @@ public class CameraController : MonoBehaviour {
 
         yaw = cam.rot.eulerAngles.y;
         pitch = cam.rot.eulerAngles.x;
+
         distance = Vector3.Distance(transform.position, cam.pos);
     }
 
@@ -161,29 +163,44 @@ public class CameraController : MonoBehaviour {
         yaw = ClampAngle(yaw, -360f, 360f);
         pitch = ClampAngle(pitch, pitchMinLimit, pitchMaxLimit);
 
-        float theta = (yaw - 90f) * Mathf.Deg2Rad;
-        float phi = pitch * Mathf.Deg2Rad;
-        
-        cam.pos = transform.position + new Vector3(
-            distance * Mathf.Cos(phi) * Mathf.Cos(theta),
-            distance * Mathf.Sin(phi),
-            distance * Mathf.Cos(phi) * Mathf.Sin(theta)
-        );
+        MiniTransform newTransform = CalculateTransformation(yaw, pitch, distance);
 
-        Vector3 forward = (transform.position - cam.pos).normalized;
-
-        cam.rot = Quaternion.LookRotation(forward);
+        cam.pos = newTransform.pos;
+        cam.rot = newTransform.rot;
 
         velocityHorizontal = 0f;
         velocityVertical = 0f;
 
     }
 
+    private MiniTransform CalculateTransformation(float yaw, float pitch, float distance) {
+
+        MiniTransform output = new MiniTransform();
+
+        float radYaw = (yaw - 90f) * Mathf.Deg2Rad;
+        float radPitch = pitch * Mathf.Deg2Rad;
+
+        output.pos = transform.position + new Vector3(
+            distance * Mathf.Cos(radPitch) * Mathf.Cos(radYaw),
+            distance * Mathf.Sin(radPitch),
+            distance * Mathf.Cos(radPitch) * Mathf.Sin(radYaw)
+        );
+
+        output.rot = Quaternion.LookRotation((transform.position - output.pos).normalized);
+
+        return output;
+    }
+
     private void FixCameraCollision() {
         OcclusionData occ = GetOcclusion(cam.pos);
         if (occ.isOccluded) {
+            if (preOccludedDistance == 0f) {
+                preOccludedDistance = distance;
+            }
             distance = CalculateBetterDistance(occ.distance);
         }
+
+        ResetOccludedDistance();
     }
 
     // Check if a given camera position is being occluded using linecasts
@@ -271,6 +288,23 @@ public class CameraController : MonoBehaviour {
 
         // if nudge was always occluded, give up
         return desiredDistance;
+
+    }
+
+    private void ResetOccludedDistance() {
+
+        if (preOccludedDistance == 0f) {
+            return;
+        }
+
+        Vector3 prePos = CalculateTransformation(yaw, pitch, preOccludedDistance).pos;
+        DrawKeyCameraPoints(CalculateKeyCameraPoints(prePos));
+
+        OcclusionData occ = GetOcclusion(prePos);
+        if (!occ.isOccluded) { 
+            distance = preOccludedDistance;
+            preOccludedDistance = 0f;
+        }
 
     }
 
