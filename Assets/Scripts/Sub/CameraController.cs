@@ -26,7 +26,6 @@ public class CameraController : MonoBehaviour {
     [SerializeField] private float ySpeed = 100.0f;
     private float pitchMinLimit = -89f;
     private float pitchMaxLimit = 89f;
-    // [SerializeField] private float smoothTime = 25f;
     private float yaw = 0f;
     private float pitch = 0f;
     private float velocityHorizontal = 0f;
@@ -56,9 +55,6 @@ public class CameraController : MonoBehaviour {
 
     // ******************************************************
     // Fields related to Camera Collision
-
-    [SerializeField] private float incrementDistance = 0.05f;
-    [SerializeField] private int incrementMaxSteps = 50;
 
     private class KeyCameraPoints {
         public Vector3 TopLeft;
@@ -209,8 +205,7 @@ public class CameraController : MonoBehaviour {
                 // distance for eventual resetting
                 distancePreOccluded = distanceActual;
             }
-            distanceDesired = CalculateSaferDistance(distanceActual, occ.distance);
-            //distanceDesired = occ.distance;
+            distanceDesired = CalculateSaferDistance(occ.distance, minimumDistance);
         }
     }
 
@@ -289,6 +284,8 @@ public class CameraController : MonoBehaviour {
 
         float direction = Mathf.Sign(desired - initial);
 
+        // with direction in mind, find a point between initial and desired
+        // that is not occluded using small increments of distance
         if (direction == -1f) {
 
             for (float i = initial; i > desired; i -= 0.01f) {
@@ -299,13 +296,16 @@ public class CameraController : MonoBehaviour {
 
         }
         else if (direction == 1f) {
+
             for (float i = initial; i < desired; i += 0.01f) {
                 if (!GetOcclusion(GetPosition(i)).isOccluded) {
                     return i;
                 }
             }
+
         }
 
+        // if everything was occluded, then just return desired
         return desired;
     }
 
