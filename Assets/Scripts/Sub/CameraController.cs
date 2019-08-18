@@ -12,7 +12,7 @@ public class CameraController : MonoBehaviour {
         public Camera camera = null;
     }
 
-    private CameraComponents camReference = new CameraComponents();
+    private CameraComponents camReference;
 
     // ******************************************************
     // QoL Fields
@@ -73,8 +73,10 @@ public class CameraController : MonoBehaviour {
     // Monobehavior Methods
 
     private void Start() {
-        camReference.transform = GetComponentsInChildren<Transform>()[1];
-        camReference.camera = GetComponentInChildren<Camera>();
+        camReference = new CameraComponents {
+            transform = GetComponentsInChildren<Transform>()[1],
+            camera = GetComponentInChildren<Camera>()
+        };
 
         cam = new MiniTransform {
             pos = camReference.transform.position,
