@@ -100,7 +100,10 @@ public class CameraController : MonoBehaviour {
         Zoom();
         Orbit();
 
-        if (debug) { DrawKeyCameraPoints(CalculateKeyCameraPoints(cam.pos)); }
+        if (debug) {
+            DrawKeyCameraPoints(cam.pos);
+            // OutputStatus();
+        }
 
         FixCameraCollision();
         ResetToPreOccluded();
@@ -196,8 +199,7 @@ public class CameraController : MonoBehaviour {
         return output;
     }
 
-    // Moves the camera closer if it is being occluded
-    // Then tries to move it back once its no longer occluded
+    // If camera occluded, then move it closer to not be
     private void FixCameraCollision() {
 
         OcclusionData occ = GetOcclusion(cam.pos);
@@ -207,7 +209,8 @@ public class CameraController : MonoBehaviour {
                 // distance for eventual resetting
                 distancePreOccluded = distanceActual;
             }
-            distanceDesired = CalculateBetterDistance(occ.distance);
+            distanceDesired = CalculateSaferDistance(distanceActual, occ.distance);
+            //distanceDesired = occ.distance;
         }
     }
 
@@ -276,58 +279,81 @@ public class CameraController : MonoBehaviour {
         return points;
     }
 
-    // When occluded, find a closer distance to not be
-    // eventually returning the parameter distance that was always safe
-    private float CalculateBetterDistance(float dist) {
+    // Given an initial distance, find a distance towards
+    // a desired distance that is not occluded
+    private float CalculateSaferDistance(float initial, float desired) {
 
-        // copy the starting distance
-        float nudgedDistance = distanceActual;
+        if (initial == desired) {
+            return initial;
+        }
 
-        for (int i = 0; i < incrementMaxSteps; i++) {
+        float direction = Mathf.Sign(desired - initial);
 
-            // nudge it closer to the origin
-            nudgedDistance -= incrementDistance;
-            Vector3 nudged = Vector3.MoveTowards(transform.position, cam.pos, nudgedDistance);
+        if (direction == -1f) {
 
-            if (!GetOcclusion(nudged).isOccluded) {
-                return nudgedDistance;
+            for (float i = initial; i > desired; i -= 0.01f) {
+                if (!GetOcclusion(GetPosition(i)).isOccluded) {
+                    return i;
+                }
+            }
+
+        }
+        else if (direction == 1f) {
+            for (float i = initial; i < desired; i += 0.01f) {
+                if (!GetOcclusion(GetPosition(i)).isOccluded) {
+                    return i;
+                }
             }
         }
 
-        // if nudge was always occluded, give up
-        return dist;
+        return desired;
     }
 
-    // Checks to make sure the pre occluded distance isn't being occluded,
-    // and will change the camera distance to go back to its original once it's not
+    // Constantly moves camera back towards pre-collision point
+    // and when it succeeds, will stop further resetting
     private void ResetToPreOccluded() {
 
         // if not in reset state, then don't do anything
         if (distancePreOccluded == 0f) { return; }
 
-        Vector3 prePos = CalculateTransformation(yaw, pitch, distancePreOccluded).pos;
-
-        if (debug) { DrawKeyCameraPoints(CalculateKeyCameraPoints(prePos)); }
-
-        OcclusionData occ = GetOcclusion(prePos);
+        if (debug) { DrawKeyCameraPoints(GetPosition(distancePreOccluded)); }
+        OcclusionData occ = GetOcclusion(GetPosition(distancePreOccluded));
 
         if (!occ.isOccluded) {
-            // if point is longer occluded, then go back to it
+            // if no longer occluded, then stop further resetting
             distanceDesired = distancePreOccluded;
-        }
-        else if (occ.distance <= distancePreOccluded && occ.distance > distanceDesired) {
-            // if point is occluded, then get as close as possible
-            distanceDesired = occ.distance;
+            distancePreOccluded = 0f;
+            return;
         }
 
-        if (distanceDesired == distancePreOccluded) {
-            // if finally reached point, no longer need to try to reset
-            distancePreOccluded = 0f;
-        }
+        // we have hit distance but could be occluded, so find a distance that isn't
+        distanceDesired = CalculateSaferDistance(occ.distance, distanceDesired);
     }
 
+    // Return a camera position given the distance
+    private Vector3 GetPosition(float distance) {
+        return transform.position + ((cam.pos - transform.position).normalized * distance);
+    }
+
+    // Update the real camera with the ghost camera
+    private void UpdateCameraReference() {
+
+        distanceDesired = Mathf.Clamp(distanceDesired, minimumDistance, maximumDistance);
+
+        float velocity = 0f;
+        distanceActual = Mathf.SmoothDamp(distanceActual, distanceDesired, ref velocity, 0.01f);
+
+        cam.pos = Vector3.MoveTowards(transform.position, cam.pos, distanceActual);
+        camReference.transform.SetPositionAndRotation(cam.pos, cam.rot);
+    }
+
+    // ******************************************************
+    // Debug Methods
+
     // Debug tool; draw the visualization of the KeyCameraPoints
-    private void DrawKeyCameraPoints(KeyCameraPoints points) {
+    private void DrawKeyCameraPoints(Vector3 position) {
+        KeyCameraPoints points = CalculateKeyCameraPoints(position);
+
         Debug.DrawLine(transform.position, points.Back, Color.blue);
 
         Debug.DrawLine(transform.position, points.TopLeft, Color.red);
@@ -346,16 +372,28 @@ public class CameraController : MonoBehaviour {
         Debug.DrawLine(points.BotLeft, points.Back, Color.red);
     }
 
-    // Update the real camera with the ghost camera
-    private void UpdateCameraReference() {
+    private void OutputStatus() {
+        string message = "";
 
-        distanceDesired = Mathf.Clamp(distanceDesired, minimumDistance, maximumDistance);
+        message += "Occlusion State: " + (distancePreOccluded != 0f).ToString() + "\n";
 
-        float velocity = 0f;
-        distanceActual = Mathf.SmoothDamp(distanceActual, distanceDesired, ref velocity, 0.01f);
+        if (distancePreOccluded != 0f) {
+            OcclusionData occ = GetOcclusion(cam.pos);
+            message += "Actual  : " + distanceActual.ToString() + "\n";
+            message += "Desired : " + distanceDesired.ToString() + "\n";
+            message += "PreOcc  : " + distancePreOccluded.ToString() + "\n";
 
-        cam.pos = Vector3.MoveTowards(transform.position, cam.pos, distanceActual);
-        camReference.transform.SetPositionAndRotation(cam.pos, cam.rot);
+            if (occ.distance == float.MaxValue) {
+                message += "Occ     : MaxValue\n";
+            }
+            else {
+                message += "Occ     : " + occ.distance.ToString() + "\n";
+            }
+
+            message += "Better  : " + CalculateSaferDistance(distanceActual, occ.distance).ToString() + "\n";
+        }
+
+        Debug.Log(message);
     }
 
     // ******************************************************
