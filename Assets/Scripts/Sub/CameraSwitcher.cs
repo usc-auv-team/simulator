@@ -8,15 +8,22 @@ public class CameraSwitcher : MonoBehaviour {
     // ******************************************************
     // Relevant Camera Components Class
 
+    // Relevant components specific for this script
     private class CameraComponents {
+
+        // Camera component
         public Camera cam = null;
+
+        // Audio Listener component
         public AudioListener audio = null;
 
-        public void SetState(bool enabled) {
+        // Set whether components are enabled or not
+        public void SetEnabled(bool enabled) {
             cam.enabled = enabled;
             audio.enabled = enabled;
         }
 
+        // Toggle the enabled state of components
         public void Toggle() {
             cam.enabled = !cam.enabled;
             audio.enabled = !audio.enabled;
@@ -26,20 +33,31 @@ public class CameraSwitcher : MonoBehaviour {
     // ******************************************************
     // Camera State Enum
 
+    // Describes state of the active camera
     private enum CameraState { FIRST, THIRD }
 
     // ******************************************************
     // Game Object References
 
+    // Reference to the First Person camera
     [SerializeField] private GameObject CameraObjectFirst = null;
+
+    // Reference to the Third Person camera
     [SerializeField] private GameObject CameraObjectThird = null;
+
+    // Reference to third person controller script
     private CameraThirdPersonController TPController = null;
 
     // ******************************************************
     // Fields
 
+    // First person camera components
     private CameraComponents camFirst;
+
+    // Third person camera components
     private CameraComponents camThird;
+
+    // State of the active camera
     private CameraState state = CameraState.THIRD;
 
     // ******************************************************
@@ -47,8 +65,8 @@ public class CameraSwitcher : MonoBehaviour {
 
     private void Start() {
         SetObjectReferences();
-        camFirst.SetState(true);
-        camThird.SetState(false);
+        camFirst.SetEnabled(true);
+        camThird.SetEnabled(false);
 
     }
 
@@ -62,6 +80,7 @@ public class CameraSwitcher : MonoBehaviour {
     // ******************************************************
     // Private Methods
 
+    // Set both game object and component references at the start
     private void SetObjectReferences() {
         if (!CameraObjectFirst) {
             Debug.LogError("First Person Camera not set!");
@@ -83,6 +102,7 @@ public class CameraSwitcher : MonoBehaviour {
         TPController = GetComponent<CameraThirdPersonController>();
     }
 
+    // Toggles state of active camera and whether TPController is enabled
     private void ToggleCameraState() {
         switch (state) {
             case CameraState.FIRST:
@@ -96,6 +116,7 @@ public class CameraSwitcher : MonoBehaviour {
         }
     }
 
+    // Toggles the components of both FP and TP cameras
     private void ToggleActiveCamera() {
         camFirst.Toggle();
         camThird.Toggle();
