@@ -2590,11 +2590,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 7198158675269726095, guid: 207ee1d6d9088b2458a086eef91d3f26,
-        type: 3}
-      propertyPath: m_Name
-      value: CameraManager
-      objectReference: {fileID: 0}
     - target: {fileID: 7198158674963895061, guid: 207ee1d6d9088b2458a086eef91d3f26,
         type: 3}
       propertyPath: m_Name
@@ -2665,20 +2660,5 @@ PrefabInstance:
       propertyPath: waterVolume
       value: 
       objectReference: {fileID: 1631083267}
-    - target: {fileID: 7700171585985771134, guid: 207ee1d6d9088b2458a086eef91d3f26,
-        type: 3}
-      propertyPath: debug
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7198158674812089819, guid: 207ee1d6d9088b2458a086eef91d3f26,
-        type: 3}
-      propertyPath: m_Name
-      value: CameraThirdPerson
-      objectReference: {fileID: 0}
-    - target: {fileID: 8339921700062814943, guid: 207ee1d6d9088b2458a086eef91d3f26,
-        type: 3}
-      propertyPath: m_Name
-      value: CameraFirstPerson
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 207ee1d6d9088b2458a086eef91d3f26, type: 3}
