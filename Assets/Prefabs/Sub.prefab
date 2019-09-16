@@ -1228,7 +1228,7 @@ GameObject:
   - component: {fileID: 7198158674812089820}
   - component: {fileID: 7198158674812089823}
   m_Layer: 0
-  m_Name: MainCamera
+  m_Name: CameraThirdPerson
   m_TagString: MainCamera
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2274,7 +2274,7 @@ GameObject:
   - component: {fileID: 7700171585985771134}
   - component: {fileID: 5399995398113908409}
   m_Layer: 0
-  m_Name: CameraPivot
+  m_Name: CameraManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2308,7 +2308,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3cba36393668e804991ddf12cc21ff35, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  debug: 0
+  debug: 1
   xSpeed: 100
   ySpeed: 100
   zoomSpeed: 3
@@ -2340,7 +2340,7 @@ GameObject:
   - component: {fileID: 4784830328744502620}
   - component: {fileID: 6656780657829483052}
   m_Layer: 0
-  m_Name: CameraOnSub
+  m_Name: CameraFirstPerson
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
