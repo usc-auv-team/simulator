@@ -65,8 +65,8 @@ public class CameraSwitcher : MonoBehaviour {
 
     private void Start() {
         SetObjectReferences();
-        camFirst.SetEnabled(true);
-        camThird.SetEnabled(false);
+        camFirst.SetEnabled(false);
+        camThird.SetEnabled(true);
 
     }
 

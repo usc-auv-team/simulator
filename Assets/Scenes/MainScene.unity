@@ -1841,6 +1841,12 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1377863365}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &1564921064 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7198158674812089819, guid: 207ee1d6d9088b2458a086eef91d3f26,
+    type: 3}
+  m_PrefabInstance: {fileID: 7198158674667968682}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1631083267
 GameObject:
   m_ObjectHideFlags: 0
@@ -1981,6 +1987,12 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1739414338 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8339921700062814943, guid: 207ee1d6d9088b2458a086eef91d3f26,
+    type: 3}
+  m_PrefabInstance: {fileID: 7198158674667968682}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1745825121
 GameObject:
   m_ObjectHideFlags: 0
@@ -2660,5 +2672,15 @@ PrefabInstance:
       propertyPath: waterVolume
       value: 
       objectReference: {fileID: 1631083267}
+    - target: {fileID: 5399995398113908409, guid: 207ee1d6d9088b2458a086eef91d3f26,
+        type: 3}
+      propertyPath: CameraObjectFirst
+      value: 
+      objectReference: {fileID: 1739414338}
+    - target: {fileID: 5399995398113908409, guid: 207ee1d6d9088b2458a086eef91d3f26,
+        type: 3}
+      propertyPath: CameraObjectThird
+      value: 
+      objectReference: {fileID: 1564921064}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 207ee1d6d9088b2458a086eef91d3f26, type: 3}
