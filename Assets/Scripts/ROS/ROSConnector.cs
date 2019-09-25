@@ -5,12 +5,12 @@ using RosSharp.RosBridgeClient;
 using RosSharp.RosBridgeClient.Protocols;
 using std_msgs = RosSharp.RosBridgeClient.Messages.Standard;
 
-public class ROSConnector : MonoBehaviour {
-    RosSocket rosSocket;
-    WebSocketSharpProtocol protocol;
+public class ROSConnector : Singleton<ROSConnector> {
+    RosSocket rosSocket = null;
+    WebSocketSharpProtocol protocol = null;
 
-    private enum Status { NONE, TRYING, FAILED, SUCCESS };
-    private Status status = Status.NONE;
+    public enum Status { NONE, TRYING, FAILED, SUCCESS };
+    public Status status { get; private set; } = Status.NONE;
     [SerializeField] public GameObject inputField = null;
     [SerializeField] public GameObject statusObject = null;
     private Image statusImage = null;
