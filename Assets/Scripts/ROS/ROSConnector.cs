@@ -36,7 +36,7 @@ public class ROSConnector : Singleton<ROSConnector> {
     // Update is called once per frame
     private void OnDestroy() {
         // Close any existing connection
-        if (status == Status.SUCCESS) rosSocket.Close();
+        if (status == Status.SUCCESS && rosSocket != null) rosSocket.Close();
     }
 
     // Connect to ROS
@@ -45,7 +45,6 @@ public class ROSConnector : Singleton<ROSConnector> {
         if (status == Status.SUCCESS) rosSocket.Close();
 
         string uri = "ws://" + inputField.GetComponent<Text>().text;
-        //string uri = "ws://192.168.1.195:9090";
         Debug.Log("Attempting connection @ \"" + uri + "\"");
         UpdateStatus(Status.TRYING);
 
@@ -54,43 +53,39 @@ public class ROSConnector : Singleton<ROSConnector> {
         protocol.OnConnected += Protocol_OnConnected;  // Setup callback
         protocol.Connect();
 
-        // If timeout set status to failed
+        //TODO: If timeout, set status to failed
     }
 
     // Callback function for when protocol connects
     private void Protocol_OnConnected(object sender, EventArgs e) {
         Debug.Log("Socket connected!");
+        
         // If socket connected, create the RosSocket
         rosSocket = new RosSocket(protocol);
-        PublishString("/listener", "Connected to ROS!");
+        Debug.Log("Created RosSocket");
+
         UpdateStatus(Status.SUCCESS);
+        PublishString("/unity", "Connected to ROS!");
     }
 
     // Publish string to ROS
+    // Topic must be in "/topic" format
     public void PublishString(string topic, string msg) {
+        // If not connected, do nothing
+        if (status != Status.SUCCESS) return;
+
         // Create new standard string and set its data to msg
         std_msgs.String message = new std_msgs.String {
             data = msg
         };
 
-        string publicationId = rosSocket.Advertise<std_msgs.String>(topic); // Topic must be in "/topic" format
+        string publicationId = rosSocket.Advertise<std_msgs.String>(topic);
         rosSocket.Publish(publicationId, message);
         Debug.Log("Sent:" + msg);
     }
 
-    // Update status icon based on status
+    // Update status
     private void UpdateStatus(Status status) {
         this.status = status;
-        switch(status) {
-            case Status.SUCCESS:
-                statusImage.color = Color.green;
-                break;
-            case Status.TRYING:
-                statusImage.color = Color.yellow;
-                break;
-            case Status.FAILED:
-                statusImage.color = Color.red;
-                break;
-        }
     }
 }
