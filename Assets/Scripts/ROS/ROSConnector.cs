@@ -4,6 +4,7 @@ using System;
 using RosSharp.RosBridgeClient;
 using RosSharp.RosBridgeClient.Protocols;
 using std_msgs = RosSharp.RosBridgeClient.Messages.Standard;
+using geometry_msgs = RosSharp.RosBridgeClient.Messages.Geometry;
 
 public class ROSConnector : Singleton<ROSConnector> {
     RosSocket rosSocket = null;
@@ -82,6 +83,21 @@ public class ROSConnector : Singleton<ROSConnector> {
         string publicationId = rosSocket.Advertise<std_msgs.String>(topic);
         rosSocket.Publish(publicationId, message);
         Debug.Log("Sent:" + msg);
+    }
+
+    public void PublishVector3(string topic, Vector3 vector3) {
+        // If not connected, do nothing
+        if (status != Status.SUCCESS) return;
+
+        geometry_msgs.Vector3 message = new geometry_msgs.Vector3 {
+            x = vector3.x,
+            y = vector3.y,
+            z = vector3.z
+        };
+
+        string publicationId = rosSocket.Advertise<geometry_msgs.Vector3>(topic);
+        rosSocket.Publish(publicationId, message);
+        Debug.Log("Sent:" + vector3);
     }
 
     // Update status
