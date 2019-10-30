@@ -4,28 +4,29 @@ using UnityEngine;
 
 public class SoloMotor : MonoBehaviour
 {
-    public float force = 5f;
+    [SerializeField]
+    private float force = 5f;
     public Motor motor;
 
     public void Start()
     {
-        motor.set_force(force);
-        motor.set_dist_cog(transform.position);
-        motor.set_motor_direction(transform.up);
+        motor.SetForce(force);
+        motor.SetDistCog(transform.position);
+        motor.SetMotorDirection(transform.up);
     }
 
     public void FixedUpdate(){
-        motor.set_force(force);
-        motor.set_dist_cog(transform.position);
-        motor.set_motor_direction(transform.up);
+        motor.SetForce(force);
+        motor.SetDistCog(transform.position);
+        motor.SetMotorDirection(transform.up);
     }
 
     void OnDrawGizmos()
     {
-        if (motor.motor_on)
+        if (motor.motorOn)
         {
             Gizmos.color = Color.blue;
-            Gizmos.DrawLine(transform.position, motor.get_force() / 10f + transform.position);
+            Gizmos.DrawLine(transform.position, motor.GetForce() / 10f + transform.position);
         }
     }
 }
