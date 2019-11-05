@@ -1074,7 +1074,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fc8612789c5fd4e2e9a53d4c0345346f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  lockCursor: 1
+  lockCursor: 0
   mouseSensitivityX: 6
   mouseSensitivityY: 5
   target: {fileID: 40682961}
@@ -3039,11 +3039,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 192905996}
     m_Modifications:
-    - target: {fileID: 6787116859928495198, guid: 8be32ee6c55124c5ca4169ea8903df45,
-        type: 3}
-      propertyPath: m_Name
-      value: Image
-      objectReference: {fileID: 0}
     - target: {fileID: 6787116859928495197, guid: 8be32ee6c55124c5ca4169ea8903df45,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -3149,10 +3144,75 @@ PrefabInstance:
       propertyPath: m_Pivot.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6787116859928495198, guid: 8be32ee6c55124c5ca4169ea8903df45,
+        type: 3}
+      propertyPath: m_Name
+      value: SubmarineInterface
+      objectReference: {fileID: 0}
     - target: {fileID: 6787116859928495170, guid: 8be32ee6c55124c5ca4169ea8903df45,
         type: 3}
       propertyPath: physicsSim
       value: 
       objectReference: {fileID: 2001069081}
+    - target: {fileID: 741624834444441413, guid: 8be32ee6c55124c5ca4169ea8903df45,
+        type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 10917, guid: 0000000000000000f000000000000000, type: 0}
+    - target: {fileID: 741624834444441413, guid: 8be32ee6c55124c5ca4169ea8903df45,
+        type: 3}
+      propertyPath: m_Type
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4163958267093512863, guid: 8be32ee6c55124c5ca4169ea8903df45,
+        type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 10917, guid: 0000000000000000f000000000000000, type: 0}
+    - target: {fileID: 4163958267093512863, guid: 8be32ee6c55124c5ca4169ea8903df45,
+        type: 3}
+      propertyPath: m_Type
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 362263682124642474, guid: 8be32ee6c55124c5ca4169ea8903df45,
+        type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 10917, guid: 0000000000000000f000000000000000, type: 0}
+    - target: {fileID: 362263682124642474, guid: 8be32ee6c55124c5ca4169ea8903df45,
+        type: 3}
+      propertyPath: m_Type
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4409513179724163082, guid: 8be32ee6c55124c5ca4169ea8903df45,
+        type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 10917, guid: 0000000000000000f000000000000000, type: 0}
+    - target: {fileID: 4409513179724163082, guid: 8be32ee6c55124c5ca4169ea8903df45,
+        type: 3}
+      propertyPath: m_Type
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8739352430914659418, guid: 8be32ee6c55124c5ca4169ea8903df45,
+        type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 10917, guid: 0000000000000000f000000000000000, type: 0}
+    - target: {fileID: 8739352430914659418, guid: 8be32ee6c55124c5ca4169ea8903df45,
+        type: 3}
+      propertyPath: m_Type
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5407890768276362742, guid: 8be32ee6c55124c5ca4169ea8903df45,
+        type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 10917, guid: 0000000000000000f000000000000000, type: 0}
+    - target: {fileID: 5407890768276362742, guid: 8be32ee6c55124c5ca4169ea8903df45,
+        type: 3}
+      propertyPath: m_Type
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8be32ee6c55124c5ca4169ea8903df45, type: 3}

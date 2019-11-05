@@ -21,6 +21,10 @@ public class SoloMotor : MonoBehaviour
         motor.SetMotorDirection(transform.up);
     }
 
+    public void SwitchOnOff() {
+        motor.motorOn = !motor.motorOn;
+    }
+
     void OnDrawGizmos()
     {
         if (motor.motorOn)

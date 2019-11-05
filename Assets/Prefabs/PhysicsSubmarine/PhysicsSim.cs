@@ -13,8 +13,7 @@ public class PhysicsSim : MonoBehaviour
     private Vector3 centerOfBouyancy = Vector3.zero;
 
     //Arrays containing all the motor information
-    [SerializeField]
-    private SoloMotor[] soloMotors;
+    public SoloMotor[] soloMotors;
     public Motor[] motors;
 
     //Physics Properties
