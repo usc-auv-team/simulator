@@ -4,13 +4,14 @@ using System;
 using RosSharp.RosBridgeClient;
 using RosSharp.RosBridgeClient.Protocols;
 using std_msgs = RosSharp.RosBridgeClient.Messages.Standard;
+using geometry_msgs = RosSharp.RosBridgeClient.Messages.Geometry;
 
-public class ROSConnector : MonoBehaviour {
-    RosSocket rosSocket;
-    WebSocketSharpProtocol protocol;
+public class ROSConnector : Singleton<ROSConnector> {
+    RosSocket rosSocket = null;
+    WebSocketSharpProtocol protocol = null;
 
-    private enum Status { NONE, TRYING, FAILED, SUCCESS };
-    private Status status = Status.NONE;
+    public enum Status { NONE, TRYING, FAILED, SUCCESS };
+    public Status status { get; private set; } = Status.NONE;
     [SerializeField] public GameObject inputField = null;
     [SerializeField] public GameObject statusObject = null;
     private Image statusImage = null;
@@ -36,7 +37,7 @@ public class ROSConnector : MonoBehaviour {
     // Update is called once per frame
     private void OnDestroy() {
         // Close any existing connection
-        if (status == Status.SUCCESS) rosSocket.Close();
+        if (status == Status.SUCCESS && rosSocket != null) rosSocket.Close();
     }
 
     // Connect to ROS
@@ -45,7 +46,6 @@ public class ROSConnector : MonoBehaviour {
         if (status == Status.SUCCESS) rosSocket.Close();
 
         string uri = "ws://" + inputField.GetComponent<Text>().text;
-        //string uri = "ws://192.168.1.195:9090";
         Debug.Log("Attempting connection @ \"" + uri + "\"");
         UpdateStatus(Status.TRYING);
 
@@ -54,43 +54,54 @@ public class ROSConnector : MonoBehaviour {
         protocol.OnConnected += Protocol_OnConnected;  // Setup callback
         protocol.Connect();
 
-        // If timeout set status to failed
+        //TODO: If timeout, set status to failed
     }
 
     // Callback function for when protocol connects
     private void Protocol_OnConnected(object sender, EventArgs e) {
         Debug.Log("Socket connected!");
+        
         // If socket connected, create the RosSocket
         rosSocket = new RosSocket(protocol);
-        PublishString("/listener", "Connected to ROS!");
+        Debug.Log("Created RosSocket");
+
         UpdateStatus(Status.SUCCESS);
+        PublishString("/unity", "Connected to ROS!");
     }
 
     // Publish string to ROS
+    // Topic must be in "/topic" format
     public void PublishString(string topic, string msg) {
+        // If not connected, do nothing
+        if (status != Status.SUCCESS) return;
+
         // Create new standard string and set its data to msg
         std_msgs.String message = new std_msgs.String {
             data = msg
         };
 
-        string publicationId = rosSocket.Advertise<std_msgs.String>(topic); // Topic must be in "/topic" format
+        string publicationId = rosSocket.Advertise<std_msgs.String>(topic);
         rosSocket.Publish(publicationId, message);
         Debug.Log("Sent:" + msg);
     }
 
-    // Update status icon based on status
+    public void PublishVector3(string topic, Vector3 vector3) {
+        // If not connected, do nothing
+        if (status != Status.SUCCESS) return;
+
+        geometry_msgs.Vector3 message = new geometry_msgs.Vector3 {
+            x = vector3.x,
+            y = vector3.y,
+            z = vector3.z
+        };
+
+        string publicationId = rosSocket.Advertise<geometry_msgs.Vector3>(topic);
+        rosSocket.Publish(publicationId, message);
+        Debug.Log("Sent:" + vector3);
+    }
+
+    // Update status
     private void UpdateStatus(Status status) {
         this.status = status;
-        switch(status) {
-            case Status.SUCCESS:
-                statusImage.color = Color.green;
-                break;
-            case Status.TRYING:
-                statusImage.color = Color.yellow;
-                break;
-            case Status.FAILED:
-                statusImage.color = Color.red;
-                break;
-        }
     }
 }
