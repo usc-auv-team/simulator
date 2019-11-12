@@ -28,12 +28,12 @@ public class UnderwaterEffectManager : MonoBehaviour {
         UpdateCameraLocation();
 
         if (cameraLocation == Location.Below) {
-            distortion.ShouldRender(true);
-            fog.ShouldRender(true);
+            if (distortion) { distortion.ShouldRender(true); }
+            if (fog) { fog.ShouldRender(true); }
         }
         else {
-            distortion.ShouldRender(false);
-            fog.ShouldRender(false);
+            if (distortion) { distortion.ShouldRender(false); }
+            if (fog) { fog.ShouldRender(false); }
         }
     }
 
