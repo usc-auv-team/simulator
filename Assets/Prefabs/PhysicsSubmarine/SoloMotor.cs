@@ -6,6 +6,8 @@ public class SoloMotor : MonoBehaviour
 {
     [SerializeField]
     private float force = 5f;
+    [SerializeField]
+    private float power = 1f;
     public Motor motor;
 
     public void Start()
@@ -13,12 +15,14 @@ public class SoloMotor : MonoBehaviour
         motor.SetForce(force);
         motor.SetDistCog(transform.position);
         motor.SetMotorDirection(transform.up);
+        motor.SetPower(power);
     }
 
     public void FixedUpdate(){
         motor.SetForce(force);
         motor.SetDistCog(transform.position);
         motor.SetMotorDirection(transform.up);
+        motor.SetPower(power);
     }
 
     public void SwitchOnOff() {
