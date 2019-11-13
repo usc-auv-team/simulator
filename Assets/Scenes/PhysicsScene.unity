@@ -897,6 +897,7 @@ GameObject:
   - component: {fileID: 445430349}
   - component: {fileID: 445430348}
   - component: {fileID: 445430347}
+  - component: {fileID: 445430350}
   m_Layer: 5
   m_Name: SettingsButton
   m_TagString: Untagged
@@ -978,7 +979,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 970825712}
+      - m_Target: {fileID: 445430350}
         m_MethodName: OnFocus
         m_Mode: 1
         m_Arguments:
@@ -1029,6 +1030,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 445430345}
   m_CullTransparentMesh: 0
+--- !u!114 &445430350
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 445430345}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6d01c0ca040be45ac81d04ad05ffded0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &504762097
 GameObject:
   m_ObjectHideFlags: 0
@@ -1593,7 +1606,6 @@ GameObject:
   - component: {fileID: 970825710}
   - component: {fileID: 970825709}
   - component: {fileID: 970825711}
-  - component: {fileID: 970825712}
   m_Layer: 5
   m_Name: SettingsMenu
   m_TagString: Untagged
@@ -1670,18 +1682,6 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: abdcb81ae571dd24b8a14abbcf81fcf0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &970825712
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 970825707}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6d01c0ca040be45ac81d04ad05ffded0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1001 &1010893917
