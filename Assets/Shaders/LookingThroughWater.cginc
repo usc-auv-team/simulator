@@ -36,7 +36,11 @@ float3 ColorBelowWater (float4 screenPos, float3 tangentSpaceNormal) {
 	float backgroundDepth =
 		LinearEyeDepth(SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, uv));
 	float surfaceDepth = UNITY_Z_0_FAR_FROM_CLIPSPACE(screenPos.z);
-	float depthDifference = backgroundDepth - surfaceDepth;
+    float depthDifference = backgroundDepth - surfaceDepth;
+
+	// logistic function; less refraction when camera is nearer water surface
+    float cameraDistRefractionStrength = saturate(-1 / (1 + pow(2.14, (surfaceDepth - 5))) + 1);
+    uvOffset *= cameraDistRefractionStrength;
 	
 	uvOffset *= saturate(depthDifference);
 	uv = AlignWithGrabTexel((screenPos.xy + uvOffset) / screenPos.w);
