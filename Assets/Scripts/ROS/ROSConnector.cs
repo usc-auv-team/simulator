@@ -4,6 +4,7 @@ using System;
 using RosSharp.RosBridgeClient;
 using RosSharp.RosBridgeClient.Protocols;
 using std_msgs = RosSharp.RosBridgeClient.Messages.Standard;
+using System.Collections;
 using geometry_msgs = RosSharp.RosBridgeClient.Messages.Geometry;
 
 public class ROSConnector : Singleton<ROSConnector> {
@@ -15,6 +16,8 @@ public class ROSConnector : Singleton<ROSConnector> {
     [SerializeField] public GameObject inputField = null;
     [SerializeField] public GameObject statusObject = null;
     private Image statusImage = null;
+    private Coroutine coroutineTimeout = null;
+    private bool statusChange = false;
 
     // Start is called before the first frame update
     private void Start() {
@@ -40,9 +43,22 @@ public class ROSConnector : Singleton<ROSConnector> {
         if (status == Status.SUCCESS && rosSocket != null) rosSocket.Close();
     }
 
+    private IEnumerator ConnectTimeout(float waitTime) {
+        yield return new WaitForSeconds(waitTime);
+        Debug.Log("Running timeout coroutine.");
+        if (!protocol.IsAlive()) {
+            UpdateStatus(Status.FAILED);
+        }
+    }
+
     // Connect to ROS
     public void Connect() {
         // Close any prior connection
+
+        if (coroutineTimeout != null) {
+            StopCoroutine(coroutineTimeout);
+        }
+
         if (status == Status.SUCCESS) rosSocket.Close();
 
         string uri = "ws://" + inputField.GetComponent<Text>().text;
@@ -54,18 +70,21 @@ public class ROSConnector : Singleton<ROSConnector> {
         protocol.OnConnected += Protocol_OnConnected;  // Setup callback
         protocol.Connect();
 
-        //TODO: If timeout, set status to failed
+        // If timeout, set status to failed
+        // Use coroutine to increment delayed timer, end of 
+        // timer should then check the status of protocol
+        coroutineTimeout = StartCoroutine(ConnectTimeout(5.0f));
     }
 
     // Callback function for when protocol connects
     private void Protocol_OnConnected(object sender, EventArgs e) {
         Debug.Log("Socket connected!");
-        
+
+        UpdateStatus(Status.SUCCESS);
+
         // If socket connected, create the RosSocket
         rosSocket = new RosSocket(protocol);
         Debug.Log("Created RosSocket");
-
-        UpdateStatus(Status.SUCCESS);
         PublishString("/unity", "Connected to ROS!");
     }
 
@@ -101,7 +120,31 @@ public class ROSConnector : Singleton<ROSConnector> {
     }
 
     // Update status
-    private void UpdateStatus(Status status) {
-        this.status = status;
+    private void UpdateStatus(Status inStatus) {
+        statusChange = true;
+        status = inStatus;
     }
+
+    void LateUpdate() {
+        if (statusChange) {
+            switch (status) {
+                case Status.SUCCESS:
+                    Debug.Log("Connected, changing color to green.");
+                    statusImage.color = Color.green;
+                    statusChange = false;
+                    break;
+                case Status.TRYING:
+                    Debug.Log("Attempting to connect, changing color to yellow.");
+                    statusImage.color = Color.yellow;
+                    statusChange = false;
+                    break;
+                case Status.FAILED:
+                    Debug.Log("Failed to connect, changing color to red.");
+                    statusImage.color = Color.red;
+                    statusChange = false;
+                    break;
+            }
+        }
+    }
+
 }
