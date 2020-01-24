@@ -4,13 +4,8 @@ using UnityEngine;
 
 public class RigidbodyManager : MonoBehaviour {
 
-    // ============================================================
-    // Game object references
-
-    [SerializeField] private GameObject waterVolume = null;
-
-    // ============================================================
-    // Rigidbody properties
+// ============================================================
+// Rigidbody properties
 
     private Rigidbody rb = null;
 
@@ -67,37 +62,15 @@ public class RigidbodyManager : MonoBehaviour {
     // MonoBehavior methods
 
     private void Start() {
-        if (GetComponent<Rigidbody>()) {
-            Debug.LogError("Remove Rigidbody component from " + gameObject.ToString());
-        }
-
-        rb = gameObject.AddComponent<Rigidbody>();
-        rb.mass = Mass;
-        rb.drag = 0f;
-        rb.angularDrag = AngularDrag;
-        rb.useGravity = false;
-
-        UpdateFields();
-
-        Position = rb.position;
-        initialPosition = rb.position;
+        rb = GetComponent<Rigidbody>();
     }
 
-    private void FixedUpdate() {
-        UpdateFields();
+    private void FixedUpdate() { 
         UpdateProperties();
-        ApplyExternalForces();
     }
 
     // ============================================================
     // Methods
-
-    private void UpdateFields() {
-        subTopPoint = rb.position.y + rb.transform.localScale.y / 2f;
-        subMidPoint = rb.position.y;
-        subBotPoint = rb.position.y - rb.transform.localScale.y / 2f;
-        waterTopPoint = waterVolume.transform.position.y + waterVolume.transform.localScale.y / 2f;
-    }
 
     private void UpdateProperties() {
         Distance += (rb.position - Position).magnitude;
@@ -111,32 +84,7 @@ public class RigidbodyManager : MonoBehaviour {
         Rotation = rb.rotation.eulerAngles;
 
         Displacement = rb.position - initialPosition;
-        Depth = subMidPoint - waterTopPoint;
-
+        
         TimeElapsed = Time.time;
-    }
-
-    private void ApplyExternalForces() {
-
-        rb.AddForce(Physics.gravity, ForceMode.Acceleration);
-        rb.AddForce(CalculateBuoyancy(), ForceMode.Acceleration);
-
-        ApplyDrag();
-    }
-
-    private Vector3 CalculateBuoyancy() {
-        return -Physics.gravity * PercentSubmerged() * buoyancy;
-    }
-
-    private float PercentSubmerged() {
-        return Mathf.Clamp01((waterTopPoint - subBotPoint) / (subTopPoint - subBotPoint));
-    }
-
-    private void ApplyDrag() {
-        float drag = Mathf.Lerp(airDrag, waterDrag, PercentSubmerged());
-        float dragForceMagnitude = rb.velocity.sqrMagnitude * drag;
-        Vector3 dragForce = -rb.velocity.normalized * dragForceMagnitude;
-
-        rb.AddForce(dragForce);
     }
 }
