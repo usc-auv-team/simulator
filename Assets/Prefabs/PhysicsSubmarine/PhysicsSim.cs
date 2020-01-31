@@ -20,7 +20,7 @@ public class PhysicsSim : MonoBehaviour
     [SerializeField]
     private float weight = 20.0f;
     [SerializeField]
-    private float inertia = 50.0f;
+    private float bouyancyForce = 15.0f;
     [SerializeField]
     private float waterHeight;
 
@@ -67,22 +67,27 @@ public class PhysicsSim : MonoBehaviour
             motors[i].SetGlobalCog(transform.position);
         }
 
+        force = Vector3.zero;
+        torque = Vector3.zero;
+
         //Calculate force and torque of motors
         //Only need to recalculate when motor updates
-        if (motorChanged){
-            UpdateSums(motors, ref force, ref torque);
-        }
+        UpdateSums(motors, ref force, ref torque);
+
 
         //Calculate center of bouyancy and center of gravity righting torque
         //Right now center of gravity and center of bouyancy are just fixed vector3
         //This section of the god is responsible for calculating the "righting torque"
         //of the submarine based on our fixed vector3 values
-        if(transform.position.y < waterHeight){
+        if (transform.position.y < waterHeight){
             Vector3 cob1 = centerOfGravity + transform.up, cob2 = centerOfGravity - 0.5f * transform.up;
             Vector3 f1 = Vector3.up * 20, f2 = Vector3.up * 5;
             torque += Vector3.Cross(cob1, f1);
             torque += Vector3.Cross(cob2, f2);
+            force += bouyancyForce * Vector3.up;
         }
+
+        force += Vector3.down * (weight);
 
         //After calculating force and torque, apply it to the rigidbody
         rb.AddForce(force);
@@ -92,8 +97,7 @@ public class PhysicsSim : MonoBehaviour
     //Takes in a list of motors, and 2 vector3s representing acceleration and torque
     private void UpdateSums(Motor[] motors, ref Vector3 force, 
                                ref Vector3 torque){
-        force = Vector3.zero;
-        torque = Vector3.zero;
+
         for(int i = 0; i < soloMotors.Length; ++i){
             if (soloMotors[i].transform.position.y < waterHeight){
                 force += motors[i].GetForce();
@@ -103,7 +107,6 @@ public class PhysicsSim : MonoBehaviour
         foreach (Motor m in motors){
 
         }
-        force += Vector3.down * weight;
     }
 
     private float CalculateDrag(Quaternion quaternion){
