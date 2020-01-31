@@ -1905,6 +1905,46 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1876415301820306455, guid: 0c6000b962a004c508a260d16e50237e,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.17300034
+      objectReference: {fileID: 0}
+    - target: {fileID: 1876415301820306455, guid: 0c6000b962a004c508a260d16e50237e,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.121500015
+      objectReference: {fileID: 0}
+    - target: {fileID: 4937008975181860375, guid: 0c6000b962a004c508a260d16e50237e,
+        type: 3}
+      propertyPath: m_projectionMatrixMode
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4937008975181860375, guid: 0c6000b962a004c508a260d16e50237e,
+        type: 3}
+      propertyPath: field of view
+      value: 55.515667
+      objectReference: {fileID: 0}
+    - target: {fileID: 4937008975181860375, guid: 0c6000b962a004c508a260d16e50237e,
+        type: 3}
+      propertyPath: m_SensorSize.x
+      value: 70.41
+      objectReference: {fileID: 0}
+    - target: {fileID: 4937008975181860375, guid: 0c6000b962a004c508a260d16e50237e,
+        type: 3}
+      propertyPath: m_SensorSize.y
+      value: 52.63
+      objectReference: {fileID: 0}
+    - target: {fileID: 4937008975181860375, guid: 0c6000b962a004c508a260d16e50237e,
+        type: 3}
+      propertyPath: m_LensShift.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4937008975181860375, guid: 0c6000b962a004c508a260d16e50237e,
+        type: 3}
+      propertyPath: m_LensShift.x
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0c6000b962a004c508a260d16e50237e, type: 3}
 --- !u!1 &1168002862 stripped

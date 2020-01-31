@@ -29,6 +29,10 @@ public class SoloMotor : MonoBehaviour
         motor.motorOn = !motor.motorOn;
     }
 
+    public void SetMotorPower(float power) {
+        this.power = Mathf.Clamp(power, -1f, 1f);
+    }
+
     void OnDrawGizmos()
     {
         if (motor.motorOn)
