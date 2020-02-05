@@ -6,12 +6,7 @@ using System.Collections;
 /// An abstract class that serves as a base for all <c>InputManager</c> classes
 /// </summary>
 public abstract class InputManager : MonoBehaviour {
-    private bool up = false;
-    private bool down = false;
-    private bool forward = false;
-    private bool backward = false;
-    private bool left = false;
-    private bool right = false;
+    public Vector3 Direction { get; protected set; }
 
     // Use this for initialization
     void Start() {
@@ -24,12 +19,7 @@ public abstract class InputManager : MonoBehaviour {
     }
 
     /// <summary>
-    /// This method checks for input and updates the movement booleans
+    /// This method checks for input and updates the movement vector
     /// </summary>
     protected abstract void CheckInputs();
-
-    /// <summary>
-    /// This method retrieves the movement booleans
-    /// </summary>
-    protected abstract void GetInputs();
 }

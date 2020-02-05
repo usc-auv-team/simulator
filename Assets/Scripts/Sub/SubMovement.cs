@@ -2,71 +2,72 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// The <c>SubMovement</c> class handles the movement on the submarine and the 
+/// broadcasting of those movements over ROS
+/// </summary>
 public class SubMovement : MonoBehaviour {
-
-    // ============================================================
-    // Serialized fields
-
-    [SerializeField] private float upForce = 1f;
-    [SerializeField] private float downForce = 1f;
-    [SerializeField] private float forwardForce = 1f;
-    [SerializeField] private float backwardForce = 1f;
-    [SerializeField] private float leftForce = 1f;
-    [SerializeField] private float rightForce = 1f;
-
-    // ============================================================
-    // Private fields
-
-    private RigidbodyManager rbm;
-
-    private bool up = false;
-    private bool down = false;
-    private bool forward = false;
-    private bool backward = false;
-    private bool left = false;
-    private bool right = false;
-
-    // ============================================================
-    // Private MonoBehavior methods
+    [SerializeField] private PhysicsSim physicsSim = null;
+    [SerializeField] private InputManager keyboardInput = null;
+    private Vector3 direction;
 
     private void Start() {
-        rbm = GetComponent<RigidbodyManager>();
+        // KeyboardInput must be present on startup
+        if (!physicsSim) {
+            Debug.LogError("PhysicsSim not set!!");
+        }
+
+        // KeyboardInput must be present on startup
+        if (!keyboardInput) {
+            Debug.LogError("KeyboardInput not set!!");
+        }
+
+        PublishVector3(direction);
     }
 
     private void Update() {
-        CheckInput(KeyCode.Space, ref up);
-        CheckInput(KeyCode.LeftShift, ref down);
-        CheckInput(KeyCode.W, ref forward);
-        CheckInput(KeyCode.S, ref backward);
-        CheckInput(KeyCode.A, ref left);
-        CheckInput(KeyCode.D, ref right);
+        GetDirection();
+        MoveSub();
     }
 
     private void FixedUpdate() {
-        ApplyForce(up, Vector3.up, upForce);
-        ApplyForce(down, Vector3.down, downForce);
-        ApplyForce(forward, Vector3.forward, forwardForce);
-        ApplyForce(backward, Vector3.back, backwardForce);
-        ApplyTorque(left, Vector3.down, leftForce);
-        ApplyTorque(right, Vector3.up, rightForce);
+
     }
 
     // ============================================================
     // Private class methods
 
-    private void CheckInput(KeyCode key, ref bool movement) {
-        movement = Input.GetKey(key);
+    /// <summary>
+    /// This method gets the direction from all input sources and merges them into one
+    /// </summary>
+    private void GetDirection() {
+        // Only KeyboardInput currently exists
+        direction = keyboardInput.Direction;
     }
 
-    private void ApplyForce(bool movement, Vector3 direction, float force) {
-        if (movement) {
-            rbm.AddRelativeForce(direction * force);
-        }
+    private void MoveSub() {
+        MoveUpAxis(direction.y);
+        //MoveHorizontal()
     }
 
-    private void ApplyTorque(bool movement, Vector3 direction, float force) {
-        if (movement) {
-            rbm.AddRelativeTorque(direction * force);
-        }
+    private void MoveHorizontal(Vector2 direction, float power) {
+        //<1,1>
+        //   <-1,-1>
+        //// Motor 1 str = distance from y = x
+        //// Motor 0 str = distance fomr y = -x
+        //physicsSim.soloMotors[0].SetMotorPower(power);
+        //physicsSim.soloMotors[1].SetMotorPower(power);
+
+    }
+
+    private void MoveUpAxis(float power) {
+        physicsSim.soloMotors[2].SetMotorPower(power);
+        physicsSim.soloMotors[3].SetMotorPower(power);
+        physicsSim.soloMotors[4].SetMotorPower(power);
+        physicsSim.soloMotors[5].SetMotorPower(power);
+    }
+
+    private void BroadcastMovement() {
+
     }
 }
