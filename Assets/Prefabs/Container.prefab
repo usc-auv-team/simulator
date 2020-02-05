@@ -575,7 +575,6 @@ GameObject:
   m_Component:
   - component: {fileID: 741214327483542629}
   - component: {fileID: 741214327483542631}
-  - component: {fileID: 741214327483542628}
   m_Layer: 0
   m_Name: WaterVolume
   m_TagString: Untagged
@@ -605,19 +604,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 741214327483542626}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!65 &741214327483542628
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 741214327483542626}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1001 &741214325914380969
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -625,11 +611,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 741214327252595339}
     m_Modifications:
-    - target: {fileID: 2886077543676906478, guid: 1fdb011fbaa796c4da01646b987322f4,
-        type: 3}
-      propertyPath: m_Name
-      value: Water (1)
-      objectReference: {fileID: 0}
     - target: {fileID: 2886077543676906467, guid: 1fdb011fbaa796c4da01646b987322f4,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -700,6 +681,11 @@ PrefabInstance:
       propertyPath: m_LocalScale.y
       value: 49.8
       objectReference: {fileID: 0}
+    - target: {fileID: 2886077543676906478, guid: 1fdb011fbaa796c4da01646b987322f4,
+        type: 3}
+      propertyPath: m_Name
+      value: Water (1)
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1fdb011fbaa796c4da01646b987322f4, type: 3}
 --- !u!4 &2469163077914239306 stripped
@@ -715,16 +701,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 741214327252595339}
     m_Modifications:
-    - target: {fileID: 2886077543676906478, guid: 1fdb011fbaa796c4da01646b987322f4,
-        type: 3}
-      propertyPath: m_Name
-      value: Water
-      objectReference: {fileID: 0}
-    - target: {fileID: 2886077543676906478, guid: 1fdb011fbaa796c4da01646b987322f4,
-        type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 2886077543676906467, guid: 1fdb011fbaa796c4da01646b987322f4,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -794,6 +770,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalScale.y
       value: 49.8
+      objectReference: {fileID: 0}
+    - target: {fileID: 2886077543676906478, guid: 1fdb011fbaa796c4da01646b987322f4,
+        type: 3}
+      propertyPath: m_Name
+      value: Water
+      objectReference: {fileID: 0}
+    - target: {fileID: 2886077543676906478, guid: 1fdb011fbaa796c4da01646b987322f4,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1fdb011fbaa796c4da01646b987322f4, type: 3}
