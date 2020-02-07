@@ -3,10 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class BoundingBox : MonoBehaviour {
+    public static bool debug = true;
+    private bool offScreen = true;
     private Camera cam;
     private float xMax, xMin, yMax, yMin;
+    private float boxHeight = 20f, boxWidth = 60f;
     private Mesh mesh;
     private static Texture2D whiteTexture;
+    private GUIStyle style = new GUIStyle();
     private IEnumerator coroutine;
 
 
@@ -24,17 +28,25 @@ public class BoundingBox : MonoBehaviour {
         whiteTexture.SetPixel(0, 0, Color.white);
         whiteTexture.Apply();
 
+        style.alignment = TextAnchor.MiddleCenter;
+
         coroutine = CalculateBorders();
         StartCoroutine(coroutine);
     }
 
     private void OnGUI() {
-        DrawBorders();
+        if (debug && !offScreen) {
+            DrawBorders();
+        }
     }
 
     private void DrawBorders() {
         DrawScreenRect(new Rect((int)xMin, (int)(Screen.height - yMin), 
         (int)(xMax - xMin), (int)(-yMax + yMin)), new Color(0, 0, 1, 0.2f));
+
+        DrawCorners(new Rect((int)xMax, (int)(Screen.height - yMax - boxHeight),
+            boxWidth, boxHeight), new Rect((int)xMin - boxWidth, 
+            (int)(Screen.height - yMin), boxWidth, boxHeight));
     }
 
     private IEnumerator CalculateBorders() {
@@ -61,8 +73,12 @@ public class BoundingBox : MonoBehaviour {
                 else if (v.y > yMax) {
                     yMax = v.y;
                 }
-                Debug.Log(i);
             }
+
+            if(xMax < 1f || yMax < 1f || xMin + 1 > Screen.width || 
+                yMin + 1 > Screen.height) { offScreen = true; }
+            else { offScreen = false; }
+
             xMax = Mathf.Clamp(xMax, 0, Screen.width);
             xMin = Mathf.Clamp(xMin, 0, Screen.width);
             yMax = Mathf.Clamp(yMax, 0, Screen.height);
@@ -70,9 +86,16 @@ public class BoundingBox : MonoBehaviour {
         }
     }
 
-    public static void DrawScreenRect(Rect rect, Color color) {
+    public void DrawScreenRect(Rect rect, Color color) {
         GUI.color = color;
         GUI.DrawTexture(rect, whiteTexture);
         GUI.color = Color.white;
+    }
+
+    public void DrawCorners(Rect topRight, Rect bottomLeft) {
+        GUI.DrawTexture(topRight, whiteTexture);
+        GUI.DrawTexture(bottomLeft, whiteTexture);
+        GUI.Box(topRight, "" + (int)xMax + ", " + (int)yMax, style);
+        GUI.Box(bottomLeft, "" + (int)xMin + ", " + (int)yMin, style);
     }
 }
