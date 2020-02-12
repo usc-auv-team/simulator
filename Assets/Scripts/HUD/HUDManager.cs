@@ -7,13 +7,14 @@ using UnityEngine.UI;
 public class HUDManager : MonoBehaviour {
     [SerializeField] public GameObject HUD;
     [SerializeField] private GameObject submarine;
+    [SerializeField] private IMUEmulator imu;
     private Information info;
     private Text IMUData;
+
     // Start is called before the first frame update
     void Start() {
         //Gives a reference to the text box component in the HUD
         IMUData = HUD.GetComponent<Text>();
-
         if (!IMUData) {
             Debug.LogError("Text component on HUD not set!");
         }
@@ -30,14 +31,21 @@ public class HUDManager : MonoBehaviour {
     void Update() {
 
         if (info && IMUData) {
+            String x = imu.Acceleration.x.ToString("+0.00;-0.00");
+            String y = imu.Acceleration.y.ToString("+0.00;-0.00");
+            String z = imu.Acceleration.z.ToString("+0.00;-0.00");
+            String pitch = imu.Rotation.x.ToString("+0.00;-0.00");
+            String yaw = imu.Rotation.y.ToString("+0.00;-0.00");
+            String roll = imu.Rotation.z.ToString("+0.00;-0.00");
+
             String IMUText =
                 $"Acceleration\n" +
-                $"x: {info.acceleration.x}\n" +
-                $"y: {info.acceleration.y}\n" +
-                $"z: {info.acceleration.z}\n\n" +
-                $"Pitch {info.rotation.x}\n" +
-                $"Yaw: {info.rotation.y}\n" +
-                $"Roll: {info.rotation.z}";
+                $"x: {x}\n" +
+                $"y: {y}\n" +
+                $"z: {z}\n\n" +
+                $"Pitch {pitch}\n" +
+                $"Yaw: {yaw}\n" +
+                $"Roll: {roll}";
             IMUData.text = IMUText;
 
         }
