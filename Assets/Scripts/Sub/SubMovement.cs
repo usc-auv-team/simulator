@@ -21,8 +21,6 @@ public class SubMovement : MonoBehaviour {
         if (!keyboardInput) {
             Debug.LogError("KeyboardInput not set!!");
         }
-
-        PublishVector3(direction);
     }
 
     private void Update() {
