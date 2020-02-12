@@ -3,9 +3,9 @@ using UnityEngine.UI;
 using System;
 using RosSharp.RosBridgeClient;
 using RosSharp.RosBridgeClient.Protocols;
-using std_msgs = RosSharp.RosBridgeClient.Messages.Standard;
+using std_msgs = RosSharp.RosBridgeClient.MessageTypes.Std;
 using System.Collections;
-using geometry_msgs = RosSharp.RosBridgeClient.Messages.Geometry;
+using geometry_msgs = RosSharp.RosBridgeClient.MessageTypes.Geometry;
 
 public class ROSConnector : Singleton<ROSConnector> {
     RosSocket rosSocket = null;
@@ -108,10 +108,17 @@ public class ROSConnector : Singleton<ROSConnector> {
         // If not connected, do nothing
         if (status != Status.SUCCESS) return;
 
-        geometry_msgs.Vector3 message = new geometry_msgs.Vector3 {
-            x = vector3.x,
-            y = vector3.y,
-            z = vector3.z
+        geometry_msgs.Vector3Stamped message = new geometry_msgs.Vector3Stamped {
+            vector = new geometry_msgs.Vector3 {
+                x = vector3.x,
+                y = vector3.y,
+                z = vector3.z
+            },
+            header = new std_msgs.Header {
+                frame_id = "1",
+                seq = 1,
+                stamp = new std_msgs.Time()
+            }
         };
 
         string publicationId = rosSocket.Advertise<geometry_msgs.Vector3>(topic);
