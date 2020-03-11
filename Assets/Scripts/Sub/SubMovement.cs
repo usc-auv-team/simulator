@@ -22,7 +22,7 @@ public class SubMovement : MonoBehaviour {
             Debug.LogError("KeyboardInput not set!!");
         }
 
-        PublishVector3(direction);
+        //PublishVector3(direction);
     }
 
     private void Update() {

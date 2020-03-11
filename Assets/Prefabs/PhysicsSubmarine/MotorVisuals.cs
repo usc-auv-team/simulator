@@ -17,7 +17,6 @@ public class MotorVisuals : MonoBehaviour
     {
         if (soloMotor.motor.motorOn && rotor != null)
         {
-            Debug.Log("rotating");
             rotor.transform.Rotate(transform.up, 250f * Time.deltaTime, Space.World);
         }
     }
