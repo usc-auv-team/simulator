@@ -3,39 +3,40 @@ using System.Collections.Generic;
 using UnityEngine;
 using XInputDotNetPure;
 
-public class KeyboardInputManager : InputManager {
-    const KeyCode Up = KeyCode.Space;
-    const KeyCode Down = KeyCode.LeftShift;
-    const KeyCode Forward = KeyCode.W;
-    const KeyCode Backward = KeyCode.S;
-    const KeyCode Left = KeyCode.A;
-    const KeyCode Right = KeyCode.D;
-
+public class ControllerInputManager : InputManager {
+    PlayerIndex playerIndex;
+    GamePadState state;
+    GamePadState prevState;
     // Start is called before the first frame update
-    void Start() {
+    void Start()
+    {
         
     }
 
     protected override void CheckInputs() {
+        playerIndex = PlayerIndex.One;
+        prevState = state;
+        state = GamePad.GetState(playerIndex);
+        
         Vector3 oldDirection = Direction;
-
         Direction = Vector3.zero;
-        if (Input.GetKey(Up)) {
+
+        if (state.Buttons.Y == ButtonState.Pressed) {
             Direction += Vector3.up;
         }
-        if (Input.GetKey(Down)) {
+        if (state.Buttons.A == ButtonState.Pressed) {
             Direction += Vector3.down;
         }
-        if (Input.GetKey(Forward)) {
+        if (state.Triggers.Right > 0) {
             Direction += Vector3.forward;
         }
-        if (Input.GetKey(Backward)) {
+        if (state.Triggers.Left > 0) {
             Direction += Vector3.back;
         }
-        if (Input.GetKey(Left)) {
+        if (state.ThumbSticks.Left.X < 0) {
             Direction += Vector3.left;
         }
-        if (Input.GetKey(Right)) {
+        if (state.ThumbSticks.Left.X > 0) {
             Direction += Vector3.right;
         }
 
@@ -44,4 +45,3 @@ public class KeyboardInputManager : InputManager {
         }
     }
 }
- 

@@ -537,6 +537,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   HUD: {fileID: 1745825121}
   submarine: {fileID: 318329710}
+  imu: {fileID: 0}
 --- !u!1 &249696484
 GameObject:
   m_ObjectHideFlags: 0
@@ -622,6 +623,20 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 1313061425}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &318329711
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 318329710}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6319996cd7a807e44a762d9499d380b0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  physicsSim: {fileID: 1200401837}
+  keyboardInput: {fileID: 0}
 --- !u!1 &445430345
 GameObject:
   m_ObjectHideFlags: 0
@@ -1325,11 +1340,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 5101749402570542522, guid: 0c6000b962a004c508a260d16e50237e,
-        type: 3}
-      propertyPath: m_Name
-      value: Submarine
-      objectReference: {fileID: 0}
     - target: {fileID: 5101749402570542501, guid: 0c6000b962a004c508a260d16e50237e,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -1384,6 +1394,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: -1.1320001
+      objectReference: {fileID: 0}
+    - target: {fileID: 5101749402570542522, guid: 0c6000b962a004c508a260d16e50237e,
+        type: 3}
+      propertyPath: m_Name
+      value: Submarine
       objectReference: {fileID: 0}
     - target: {fileID: 4765915568140119691, guid: 0c6000b962a004c508a260d16e50237e,
         type: 3}
@@ -1578,11 +1593,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 192905996}
     m_Modifications:
-    - target: {fileID: 6787116859928495198, guid: 8be32ee6c55124c5ca4169ea8903df45,
-        type: 3}
-      propertyPath: m_Name
-      value: SubmarineInterface
-      objectReference: {fileID: 0}
     - target: {fileID: 6787116859928495197, guid: 8be32ee6c55124c5ca4169ea8903df45,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -1687,6 +1697,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Pivot.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6787116859928495198, guid: 8be32ee6c55124c5ca4169ea8903df45,
+        type: 3}
+      propertyPath: m_Name
+      value: SubmarineInterface
       objectReference: {fileID: 0}
     - target: {fileID: 6787116859928495170, guid: 8be32ee6c55124c5ca4169ea8903df45,
         type: 3}
@@ -2037,6 +2052,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1723190333}
     m_Modifications:
+    - target: {fileID: 741214327182947951, guid: 0aa41e069a7a1bf4f920476d1cf29d2f,
+        type: 3}
+      propertyPath: m_Name
+      value: Container
+      objectReference: {fileID: 0}
     - target: {fileID: 741214327182947950, guid: 0aa41e069a7a1bf4f920476d1cf29d2f,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -2091,11 +2111,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 741214327182947951, guid: 0aa41e069a7a1bf4f920476d1cf29d2f,
-        type: 3}
-      propertyPath: m_Name
-      value: Container
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0aa41e069a7a1bf4f920476d1cf29d2f, type: 3}

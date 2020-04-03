@@ -1,8 +1,15 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using XInputDotNetPure;
 
 public class CameraThirdPersonController : MonoBehaviour {
+    // ******************************************************
+    //
+
+    PlayerIndex playerIndex;
+    GamePadState state;
+    GamePadState prevState;
 
     // ******************************************************
     // Child camera components
@@ -114,42 +121,73 @@ public class CameraThirdPersonController : MonoBehaviour {
 
     // Check for input and update any related fields
     private void ListenForInput() {
+        playerIndex = PlayerIndex.One;
+        prevState = state;
+        state = GamePad.GetState(playerIndex);
 
-        if (Input.GetMouseButton(1)) {
-            velocityHorizontal += xSpeed * Input.GetAxis("Mouse X") * 0.02f;
-            velocityVertical += ySpeed * Input.GetAxis("Mouse Y") * 0.02f;
-        }
+        bool thumbStick = state.ThumbSticks.Right.X != 0 || state.ThumbSticks.Right.Y != 0;
+        bool dPad = state.DPad.Up == ButtonState.Pressed || state.DPad.Down == ButtonState.Pressed;
 
-        if (Input.GetKey(KeyCode.LeftArrow)) {
-            velocityHorizontal = 1f;
-        }
-        else if (Input.GetKeyUp(KeyCode.LeftArrow)) {
-            velocityHorizontal = 0f;
-        }
 
-        if (Input.GetKey(KeyCode.RightArrow)) {
-            velocityHorizontal = -1f;
-        }
-        else if (Input.GetKeyUp(KeyCode.RightArrow)) {
-            velocityHorizontal = 0f;
-        }
+        if (thumbStick || dPad) {
+            Debug.Log("using controller");
+            if (state.ThumbSticks.Right.X > 0) {
+                velocityHorizontal += 1f;
+            }
+            if (state.ThumbSticks.Right.X < 0) {
+                velocityHorizontal -= 1f;
+            }
+            if (state.ThumbSticks.Right.Y > 0) {
+                velocityVertical += 1f;
+            }
+            if (state.ThumbSticks.Right.Y < 0) {
+                velocityVertical -= 1f;
+            }
 
-        if (Input.GetKey(KeyCode.DownArrow)) {
-            velocityVertical = 1f;
-        }
-        else if (Input.GetKeyUp(KeyCode.DownArrow)) {
-            velocityVertical = 0f;
-        }
+            if (state.DPad.Up == ButtonState.Pressed) {
+                scrollDelta = 1 * zoomSpeed;
+            }else if (state.DPad.Down == ButtonState.Pressed) {
+                scrollDelta = -1 * zoomSpeed;
+            }else{
+                scrollDelta = 0;
+            }
+        } else {
+            if (Input.GetMouseButton(1)) {
+                velocityHorizontal += xSpeed * Input.GetAxis("Mouse X") * 0.02f;
+                velocityVertical += ySpeed * Input.GetAxis("Mouse Y") * 0.02f;
+            }
 
-        if (Input.GetKey(KeyCode.UpArrow)) {
-            velocityVertical = -1f;
-        }
-        else if (Input.GetKeyUp(KeyCode.UpArrow)) {
-            velocityVertical = 0f;
-        }
+            if (Input.GetKey(KeyCode.LeftArrow)) {
+                velocityHorizontal = 1f;
+            }
+            else if (Input.GetKeyUp(KeyCode.LeftArrow)) {
+                velocityHorizontal = 0f;
+            }
 
-        if (Input.GetMouseButton(1)) {
-            scrollDelta = Input.GetAxisRaw("Mouse ScrollWheel") * zoomSpeed;
+            if (Input.GetKey(KeyCode.RightArrow)) {
+                velocityHorizontal = -1f;
+            }
+            else if (Input.GetKeyUp(KeyCode.RightArrow)) {
+                velocityHorizontal = 0f;
+            }
+
+            if (Input.GetKey(KeyCode.DownArrow)) {
+                velocityVertical = 1f;
+            }
+            else if (Input.GetKeyUp(KeyCode.DownArrow)) {
+                velocityVertical = 0f;
+            }
+
+            if (Input.GetKey(KeyCode.UpArrow)) {
+                velocityVertical = -1f;
+            }
+            else if (Input.GetKeyUp(KeyCode.UpArrow)) {
+                velocityVertical = 0f;
+            }
+
+            if (Input.GetMouseButton(1)) {
+                scrollDelta = Input.GetAxisRaw("Mouse ScrollWheel") * zoomSpeed;
+            }
         }
     }
 
