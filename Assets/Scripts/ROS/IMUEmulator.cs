@@ -8,6 +8,7 @@ public class IMUEmulator : ROSComponent {
     public Vector3 Rotation { get; private set; }
     public Vector3 Acceleration { get; private set; }
     private Information info;
+    private bool passthrough; // Flag for getting information from ROS directly
 
     // Start is called before the first frame update
     void Start() {
