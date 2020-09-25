@@ -536,7 +536,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   HUD: {fileID: 1745825121}
   submarine: {fileID: 318329710}
-  imu: {fileID: 0}
+  imu: {fileID: 1351342761}
 --- !u!1 &249696484
 GameObject:
   m_ObjectHideFlags: 0
