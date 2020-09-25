@@ -19,7 +19,7 @@
 		_Metallic ("Metallic", Range(0,1)) = 0.0
 	}
 	SubShader {
-		Tags { "RenderType"="Transparent" "Queue"="Transparent" }
+		Tags { "RenderType"="Transparent+100" "Queue"="Transparent+100" }
 		LOD 200
 		
 		GrabPass { "_WaterBackground" }
