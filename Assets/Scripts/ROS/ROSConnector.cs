@@ -48,7 +48,7 @@ public class ROSConnector : Singleton<ROSConnector> {
     private IEnumerator ConnectTimeout(float waitTime) {
         yield return new WaitForSeconds(waitTime);
         Debug.Log("Running timeout coroutine.");
-        if (!protocol.IsAlive()) {
+        if (protocol == null || !protocol.IsAlive()) {
             UpdateStatus(Status.FAILED);
         }
     }
@@ -68,9 +68,14 @@ public class ROSConnector : Singleton<ROSConnector> {
         UpdateStatus(Status.TRYING);
 
         // Create protocol and attempt connection
-        protocol = new WebSocketSharpProtocol(uri);
-        protocol.OnConnected += Protocol_OnConnected;  // Setup callback
-        protocol.Connect();
+        try {
+            protocol = new WebSocketSharpProtocol(uri);
+            protocol.OnConnected += Protocol_OnConnected;  // Setup callback
+            protocol.Connect();
+        }
+        catch (ArgumentException e) {
+            Debug.LogError(e.Message);
+        }
 
         // If timeout, set status to failed
         // Use coroutine to increment delayed timer, end of 
