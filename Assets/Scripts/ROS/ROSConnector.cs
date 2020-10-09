@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.UI;
 using System;
 using RosSharp.RosBridgeClient;
@@ -8,11 +8,13 @@ using System.Collections;
 using geometry_msgs = RosSharp.RosBridgeClient.MessageTypes.Geometry;
 
 public class ROSConnector : Singleton<ROSConnector> {
-    RosSocket rosSocket = null;
+    private RosSocket rosSocket = null;
+    public RosSocket RosSocket { get => rosSocket; }
     WebSocketSharpProtocol protocol = null;
 
     public enum Status { NONE, TRYING, FAILED, SUCCESS };
     public Status status { get; private set; } = Status.NONE;
+
     [SerializeField] public GameObject inputField = null;
     [SerializeField] public GameObject statusObject = null;
     private Image statusImage = null;
