@@ -20,7 +20,7 @@ public class PID: MonoBehaviour {
     float sensorDepth = 0;
 
     // If false, all outputs are disabled and no data gets fed into PID controller
-    bool status = false;
+    public bool Status { get; set; } = false;
 
     void Start() {
         if (!imu) {
@@ -30,7 +30,7 @@ public class PID: MonoBehaviour {
 
     private void Update() {
         // If disabled, don't do anything
-        if (!status) return;
+        if (!Status) return;
 
         UpdateSensors();
     }
@@ -48,11 +48,4 @@ public class PID: MonoBehaviour {
         Debug.Log("Forwards Power set to: " + power);
     }
 
-    public void ToggleStatus(bool status) {
-        this.status = status;
-    }
-
-    public bool GetStatus() {
-        return this.status;
-    }
 }

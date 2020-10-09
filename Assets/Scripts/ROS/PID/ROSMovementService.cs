@@ -14,7 +14,7 @@ public class ROSMovementService : ROSComponent {
         base.Start();
 
         if (!pid) {
-            Debug.LogError("PhysicsSim not set!");
+            Debug.LogError("PID not set!");
         }
 
         initializedServices = new List<string>();
@@ -38,13 +38,25 @@ public class ROSMovementService : ROSComponent {
         return true;
     }
 
+    private bool SetEnabledCallHandler(SetEnabledRequest request, out SetEnabledResponse response) {
+        pid.Status = request.enabled;
+        response = new SetEnabledResponse();
+        return true;
+    }
+
     private void InitServices() {
         // Set up services
         string setForwardsPowerPublicationId =
             connector.RosSocket.AdvertiseService<SetForwardsPowerRequest, SetForwardsPowerResponse>("/setForwardsPower", SetForwardsPowerCallHandler);
+
+        string setEnabledPublicationId =
+            connector.RosSocket.AdvertiseService<SetEnabledRequest, SetEnabledResponse>("/setEnabled", SetEnabledCallHandler);
+
         initializedServices.Add(setForwardsPowerPublicationId);
+        initializedServices.Add(setEnabledPublicationId);
         initialized = true;
     }
+
 
     private void TearDownServices() {
         foreach (String id in initializedServices) {
